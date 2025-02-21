@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/style.css') }}">
+
+    <title>Информация о капитане команды</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" method="POST" action="/captain_info" novalidate>
+            <h2>Информация о капитане команды</h2>
+
+                <div class="form-group">
+                    <input type="text" id="captainName" name="captainName" value="{{ captain.captainName if captain else '' }}" placeholder="Введите ФИО капитана...">
+                    <span id="captainNameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="captainClass" name="captainClass" value="{{ captain.captainClass if captain else '' }}" placeholder="Введите класс...">
+                    <span id="captainClassError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="cemail" name="cemail" value="{{ captain.cemail if captain else '' }}" placeholder="Введите e-mail капитана...">
+                    <span id="cemailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="cphoneNumber" name="cphoneNumber" value="{{ captain.cphoneNumber if captain else '' }}" placeholder="Введите телефон капитана...">
+                    <span id="cphoneNumberError" class="error-message"></span>
+                </div>
+
+            <button type="submit">Далее</button>
+        </form>
+
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            // Очистка предыдущих сообщений об ошибках
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(error => error.textContent = '');
+
+            let valid = true;
+
+            // Универсальная функция валидации полей
+            function validateField(id, errorId, validationFn) {
+                const value = document.getElementById(id).value.trim();
+                const errorMessage = validationFn(value);
+                if (errorMessage) {
+                    document.getElementById(errorId).textContent = errorMessage;
+                    valid = false;
+                }
+            }
+
+            // Функции валидации
+            const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
+            const isEmailValid = value => (value.length === 0 ? 'Поле обязательно к заполнению' :
+                (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Введите корректный e-mail' : ''));
+            const isPhoneValid = value => (value.length === 0 ? 'Поле обязательно к заполнению' :
+                (!/^\+?\d{10,15}$/.test(value) ? 'Введите корректный номер телефона' : ''));
+            const isClassValid = value => {
+                if (value.length === 0) {
+                    return 'Поле обязательно к заполнению';
+                }
+                const number = parseInt(value, 10);
+                if (isNaN(number) || number < 1 || number > 11) {
+                    return 'Класс может быть от 1 до 11';
+                }
+                return '';
+            };
+
+            // Проверка значений полей
+            validateField('captainName', 'captainNameError', isNotEmpty);
+            validateField('captainClass', 'captainClassError', isClassValid);
+            validateField('cemail', 'cemailError', isEmailValid);
+            validateField('cphoneNumber', 'cphoneNumberError', isPhoneValid);
+
+            // Если все поля валидны, отправляем форму на сервер
+            if (valid) {
+                const formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: this.method,
+                    body: formData,
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Переход на следующую страницу, если сервер успешно обработал данные
+                            window.location.href = '/participant_1';
+                        } else {
+                            console.error('Ошибка в обработке формы', response);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка сети', error);
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>

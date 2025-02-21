@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/styles.css') }}">
+
+    <title>Главная</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="{{ url_for ( 'static', filename='image/logo.png') }}" class="corner-image">
+        <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
+        <a href="{{ url_for('privacy_policy') }}">
+            <button type="submit">Регистрация</button>
+        </a>
+        <button type="submit" id="team-info-button" onclick="checkData()">Инфо о команде</button>
+        <button type="submit">FAQ</button>
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for ( 'static', filename='image/cross.png') }}" class="bottom-icon-cross" alt="Закрыть"> <!-- alt добавлен для доступности и SEO -->
+        </a>
+    </div>
+
+    <script>
+        // Функция для проверки заполненности данных
+        function checkData() {
+            // Сделаем запрос для проверки, заполнены ли данные
+            fetch("/final_check", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // Если данные не заполнены, то перенаправляем
+                    window.location.href = response.url;
+                } else {
+                    // Если все ок, то переходим на страницу "Инфо о команде"
+                    window.location.href = "/final_check";
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        }
+    </script>
+</body>
+
+</html>

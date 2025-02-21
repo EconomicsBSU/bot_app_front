@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/style.css') }}">
+
+    <title>Фото команды</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" method="POST" action="/photo" enctype="multipart/form-data">
+            <h2>Фото команды</h2>
+
+<!--############# Фото без дозагрузки (изначальное) #############-->
+
+<!--            <div class="upload" id="upload">-->
+<!--                <img src="{{ url_for('static', filename='image/image 1.png') }}" class="icon_photo" alt="Прикрепить">-->
+<!--                <p id="uploadText">Выберите фото или перетащите в эту область</p>-->
+<!--                <input type="file" id="fileInput" name="file" accept="image/*" style="display: none;">-->
+<!--                <div id="previewContainer" style="display: none; margin-top: 10px;">-->
+<!--                    <img id="imagePreview" src="" alt="Предпросмотр" style="max-width: 100px; max-height: 100px; display: block;"/>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <input type="hidden" name="existing_photo" value=""/> &lt;!&ndash; Скрытое поле для передачи существующего изображения &ndash;&gt;-->
+<!--            <input type="hidden" id="originalFileName" name="original_file_name" value="">-->
+
+            {% if existing_photo %}
+            <div class="upload expanded" style="margin-bottom: 10px;">
+                <img src="{{ url_for('static', filename='image/image 1.png') }}" class="icon_photo" alt="Прикрепить">
+                <p class="uploadText" data-user-id="{{ user_id }}">Файл выбран: <b>{{existing_photo.filename}}</b></p>
+                <input type="file" class="fileInput" name="file" accept="image/*" style="display: none;">
+                <div class="previewContainer" style="margin-top: 10px;">
+                    <img class="imagePreview" src="{{ url_for('get_photo_photo', photo_id=existing_photo.filename) }}" alt="Предпросмотр фото"
+                        style="max-width: 100px; max-height: 100px; cursor: pointer;">
+                </div>
+            </div>
+            {% else %}
+            <div class="upload" data-id-user="{{ user_id }}" >
+                <img src="{{ url_for('static', filename='image/image 1.png') }}" class="icon_photo" alt="Прикрепить">
+                <p class="uploadText" data-user-id="{{ user_id }}">Выберите фото вашей команды</p>
+                <input type="file" class="fileInput" name="file" accept="image/*" style="display: none;">
+                <div class="previewContainer" style="display: none; margin-top: 10px;">
+                    <img class="imagePreview" src="" alt="Предпросмотр" style="max-width: 100px; max-height: 100px; display: block;"/>
+                </div>
+            </div>
+
+            <div id="photoError" class="error-message" style="margin-bottom: 20px;"></div>
+
+            {% endif %}
+
+            <input type="hidden" name="existing_photo_id" value="{{ existing_photo.id if existing_photo else '' }}">
+            <input type="hidden" name="existing_photo" value="{{ existing_photo.filename if existing_photo else '' }}">
+            <input type="hidden" name="original_file_name" value="{{ existing_photo.filename if existing_photo else '' }}">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+
+            <button class="btn-end" type="button" id="submit">Завершить регистрацию</button>
+        </form>
+    </div>
+
+
+    <script>
+        const upload = document.querySelector('.upload');
+        const fileInput = document.querySelector('.fileInput');
+        const uploadText = document.querySelector('.uploadText');
+        const previewContainer = document.querySelector('.previewContainer');
+        const imagePreview = document.querySelector('.imagePreview');
+        const submitButton = document.querySelector('.btn-end');
+        const existingPhotoInput = document.querySelector('input[name="existing_photo"]');
+        const originalFileNameInput = document.querySelector('input[name="original_file_name"]');
+        const userIdInput = document.querySelector('input[name="user_id"]');
+        const photoError = document.getElementById('photoError');
+
+        let previousImageSrc = ""; // Хранение предыдущего изображения
+
+        // Если уже есть изображение, отображаем его
+        window.addEventListener('load', () => {
+            if (existingPhotoInput.value) {
+                upload.classList.add('active');
+                imagePreview.src = `/photo/${existingPhotoInput.value}`;
+                previousImageSrc = existingPhotoInput.value;
+                previewContainer.style.display = 'block';
+                upload.classList.add('expanded');
+                uploadText.innerHTML = `Файл выбран: <b>${originalFileNameInput.value}</b>`;
+                submitButton.disabled = false; // Включаем кнопку отправки, если изображение есть
+            } //else {
+            //     submitButton.disabled = true; // Если нет изображения, отключаем кнопку отправки
+            // }
+        });
+
+        // Открытие диалога выбора файла
+        upload.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Обработка загрузки файла
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // Обработка загрузки файла из input
+        function handleFileUpload() {
+            const file = fileInput.files[0];
+            upload.classList.remove('active');
+            if (file) {
+                upload.classList.add('active');
+                const fileName = file.name; // Сохраняем имя файла
+                originalFileNameInput.value = fileName; // Передаем имя файла в скрытое поле
+                compressImage(file, (compressedFile) => {
+                    handleFile(compressedFile, fileName);
+                });
+            }
+        }
+
+        // Обработка файла и его отображение
+        function handleFile(file, fileName) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    previousImageSrc = e.target.result;
+                    previewContainer.style.display = 'block';
+                    upload.classList.add('expanded');
+                    uploadText.innerHTML = `Файл выбран: <b>${fileName}</b>`;
+                    existingPhotoInput.value = e.target.result; // Сохраняем base64 изображение
+                    originalFileNameInput.value = fileName; // Сохраняем имя файла
+                    sessionStorage.setItem('last_uploaded_image', e.target.result); // Сохраняем base64 изображение в sessionStorage
+                    submitButton.disabled = false; // Включаем кнопку отправки
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Пожалуйста, выберите изображение!');
+                previewContainer.style.display = 'none';
+                upload.classList.remove('expanded');
+                // submitButton.disabled = true;
+            }
+        }
+
+        // Функция сжатия изображения
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    const maxWidth = 800; // Ограничение по ширине
+                    const maxHeight = 800; // Ограничение по высоте
+
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob(callback, 'image/jpeg', 0.7); // Сжимаем до 70% качества
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Проверка перед отправкой формы
+        document.getElementById('registrationForm').addEventListener('submit', function (e) {
+
+            const file = fileInput.files[0];
+            const existingPhoto = existingPhotoInput.value; // Получаем значение существующего изображения
+
+            // Проверка перед отправкой
+            if (!file && !existingPhoto) {
+                e.preventDefault();
+                alert("Пожалуйста, выберите изображение.");
+            }
+
+            // Очистка предыдущих сообщений об ошибках
+            photoError.forEach(error => error.textContent = '');
+        });
+
+
+        // Отправка файла на сервер
+        document.getElementById('submit').addEventListener('click', (e) => {
+
+            const fileInput = document.querySelector('.fileInput');
+            const userId = userIdInput.value;
+
+            if (!fileInput.files.length && !existingPhotoInput.value) {
+                e.preventDefault();
+                photoError.textContent = "Пожалуйста, загрузите изображение.";
+                return;
+            }
+
+            // Если изображение присутствует, очищаем ошибку
+            if (photoError) {
+                photoError.textContent = ''; // Очищаем сообщение об ошибке
+            }
+
+            const formData = new FormData();
+
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            } else if (existingPhotoInput.value) {
+                formData.append('existing_photo', existingPhotoInput.value);
+            }
+
+            formData.append('user_id', userId);
+
+            fetch('/photo', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        window.location.href = '/final_check'; // Перенаправление на другую страницу
+                    }
+                })
+                .catch(() => alert('Произошла ошибка при загрузке.'));
+        });
+
+
+        <!--############# Фото без дозагрузки (изначальное) #############-->
+
+        // const upload = document.getElementById('upload');
+        // const fileInput = document.getElementById('fileInput');
+        // const uploadText = document.getElementById('uploadText');
+        // const previewContainer = document.getElementById('previewContainer');
+        // const imagePreview = document.getElementById('imagePreview');
+        // const submitButton = document.querySelector('.btn-end');
+        // const existingPhotoInput = document.querySelector('input[name="existing_photo"]');
+        // const originalFileNameInput = document.getElementById('originalFileName'); // Скрытое поле для имени файла
+        //
+        // let previousImageSrc = ""; // Хранение предыдущего изображения
+        //
+        // // Открытие диалога выбора файла
+        // upload.addEventListener('click', () => {
+        //     fileInput.click();
+        // });
+        //
+        // // Обработка загрузки файла
+        // fileInput.addEventListener('change', handleFileUpload);
+        //
+        // // Подсветка области при перетаскивании файла
+        // upload.addEventListener('dragover', (e) => {
+        //     e.preventDefault();
+        //     upload.classList.add('active');
+        // });
+        //
+        // // Убираем стиль "active", когда файл покидает область.
+        // upload.addEventListener('dragleave', () => {
+        //     upload.classList.remove('active');
+        // });
+        //
+        // // Обработка перетаскивания файла
+        // upload.addEventListener('drop', (e) => {
+        //     e.preventDefault();
+        //
+        //     const file = e.dataTransfer.files[0];
+        //     if (file) {
+        //         compressImage(file, (compressedFile) => {
+        //             handleFile(compressedFile, file.name);
+        //         });
+        //     }
+        // });
+        //
+        // // Обработка загрузки файла из input
+        // function handleFileUpload() {
+        //     const file = fileInput.files[0];
+        //     if (file) {
+        //         const fileName = file.name; // Сохраняем имя файла
+        //         originalFileNameInput.value = fileName; // Передаём имя файла в скрытое поле
+        //         compressImage(file, (compressedFile) => {
+        //             handleFile(compressedFile, fileName);
+        //         });
+        //     } else {
+        //         restorePreviousImage();
+        //     }
+        // }
+        //
+        // // Восстановление предыдущего изображения
+        // function restorePreviousImage() {
+        //     if (previousImageSrc) {
+        //         imagePreview.src = previousImageSrc;
+        //         previewContainer.style.display = 'block';
+        //         upload.classList.add('expanded');
+        //         submitButton.disabled = false; // Включаем кнопку отправки
+        //     } else {
+        //         previewContainer.style.display = 'none';
+        //         upload.classList.remove('expanded');
+        //         submitButton.disabled = true; // Отключаем кнопку, если нет изображения
+        //     }
+        // }
+        //
+        // // Обработка файла и его отображение
+        // function handleFile(file, fileName) {
+        //     if (file.type.startsWith('image/')) {
+        //         const reader = new FileReader();
+        //         reader.onload = (e) => {
+        //             imagePreview.src = e.target.result;
+        //             previousImageSrc = e.target.result;
+        //             previewContainer.style.display = 'block';
+        //             upload.classList.add('expanded');
+        //             uploadText.innerHTML = `Файл выбран: <b>${fileName}</b>`;
+        //             existingPhotoInput.value = e.target.result; // Сохраняем base64 изображение
+        //             originalFileNameInput.value = fileName; // Сохраняем имя файла
+        //             sessionStorage.setItem('last_uploaded_image', e.target.result); // Сохраняем base64 изображение в sessionStorage
+        //             submitButton.disabled = false; // Включаем кнопку отправки
+        //         };
+        //         reader.readAsDataURL(file);
+        //     } else {
+        //         alert('Пожалуйста, выберите изображение!');
+        //         previewContainer.style.display = 'none';
+        //         upload.classList.remove('expanded');
+        //         submitButton.disabled = true;
+        //     }
+        // }
+        //
+        // // Функция сжатия изображения
+        // function compressImage(file, callback) {
+        //     const reader = new FileReader();
+        //     reader.onload = function (event) {
+        //         const img = new Image();
+        //         img.onload = function () {
+        //             const canvas = document.createElement('canvas');
+        //             const ctx = canvas.getContext('2d');
+        //
+        //             const maxWidth = 800; // Ограничение по ширине
+        //             const maxHeight = 800; // Ограничение по высоте
+        //
+        //             let width = img.width;
+        //             let height = img.height;
+        //
+        //             if (width > height) {
+        //                 if (width > maxWidth) {
+        //                     height *= maxWidth / width;
+        //                     width = maxWidth;
+        //                 }
+        //             } else {
+        //                 if (height > maxHeight) {
+        //                     width *= maxHeight / height;
+        //                     height = maxHeight;
+        //                 }
+        //             }
+        //
+        //             canvas.width = width;
+        //             canvas.height = height;
+        //             ctx.drawImage(img, 0, 0, width, height);
+        //
+        //             canvas.toBlob(callback, 'image/jpeg', 0.7); // Сжимаем до 70% качества
+        //         };
+        //         img.src = event.target.result;
+        //     };
+        //     reader.readAsDataURL(file);
+        // }
+        //
+        // // Проверка перед отправкой формы
+        // document.getElementById('registrationForm').addEventListener('submit', function (e) {
+        //     const file = fileInput.files[0];
+        //
+        //     // Проверка перед отправкой
+        //     if (!file && !existingPhotoInput.value) {
+        //         e.preventDefault();
+        //         alert("Пожалуйста, выберите изображение.");
+        //     }
+        // });
+
+        //         // Открытие диалога выбора файла при клике на область
+        // document.getElementById('upload').addEventListener('click', () => {
+        //     document.getElementById('fileInput').click();
+        // });
+        //
+        // // Обработка выбора файла через диалог
+        // document.getElementById('fileInput').addEventListener('change', (e) => {
+        //     const file = e.target.files[0];
+        //     if (file) {
+        //         handleFile(file); // Если файл выбран, обрабатываем его
+        //     }
+        // });
+        //
+        // // Подсветка области при перетаскивании файла
+        // document.getElementById('upload').addEventListener('dragover', (e) => {
+        //     e.preventDefault();
+        //     document.getElementById('upload').classList.add('active');
+        // });
+        //
+        // // Убираем подсветку при выходе из области
+        // document.getElementById('upload').addEventListener('dragleave', () => {
+        //     document.getElementById('upload').classList.remove('active');
+        // });
+        //
+        // // Обработка перетаскивания файла
+        // document.getElementById('upload').addEventListener('drop', (e) => {
+        //     e.preventDefault();
+        //     document.getElementById('upload').classList.remove('active');
+        //
+        //     const file = e.dataTransfer.files[0];
+        //     if (file) {
+        //         handleFile(file);
+        //     }
+        // });
+        //
+        // // Функция обработки файла
+        // function handleFile(file) {
+        //     if (file.type.startsWith('image/')) {
+        //         const reader = new FileReader();
+        //         reader.onload = (e) => {
+        //             document.getElementById('imagePreview').src = e.target.result; // Установка превью
+        //             document.getElementById('previewContainer').style.display = 'block'; // Показ превью контейнера
+        //         };
+        //         reader.readAsDataURL(file); // Чтение содержимого файла
+        //
+        //         document.getElementById('uploadText').innerHTML = `Файл выбран: <b>${file.name}</b>`;
+        //         document.getElementById('submit').disabled = false; // Активируем кнопку отправки
+        //     } else {
+        //         alert('Пожалуйста, выберите изображение!');
+        //         document.getElementById('previewContainer').style.display = 'none'; // Скрытие превью
+        //         document.getElementById('submit').disabled = true; // Отключаем кнопку отправки
+        //     }
+        // }
+        //
+        // // Отправка файла на сервер
+        // document.getElementById('submit').addEventListener('click', () => {
+        //     const fileInput = document.getElementById('fileInput');
+        //     const userId = document.getElementById('userId').value;
+        //
+        //     if (fileInput.files.length > 0) {
+        //         const file = fileInput.files[0];
+        //         const formData = new FormData();
+        //
+        //         formData.append('file', file);
+        //         formData.append('user_id', userId);
+        //
+        //         fetch('/upload', {
+        //             method: 'POST',
+        //             body: formData,
+        //         })
+        //             .then((response) => {
+        //                 if (response.ok) {
+        //                     alert('Файл успешно загружен!');
+        //                 } else {
+        //                     alert('Ошибка загрузки файла.');
+        //                 }
+        //             })
+        //             .catch(() => alert('Произошла ошибка при загрузке.'));
+        //     } else {
+        //         alert('Выберите файл перед отправкой.');
+        //     }
+        // });
+
+    </script>
+
+</body>
+</html>

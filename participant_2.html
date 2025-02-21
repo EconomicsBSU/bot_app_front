@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ry">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/style.css') }}">
+
+    <title>Информация об участнике 2</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" method="POST" action="/participant_2" novalidate>
+            <h2>Информация об участнике 2</h2>
+
+            <div class="form-group">
+                <input type="text" id="uch2Name" name="uch2Name" value="{{ participant_2.uch2Name if participant_2 else '' }}" placeholder="Введите ФИО участника 2...">
+                <span id="uch2NameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="number" id="uch2Class" name="uch2Class" value="{{ participant_2.uch2Class if participant_2 else '' }}" placeholder="Введите класс...">
+                <span id="uch2ClassError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="email" id="uch2email" name="uch2email" value="{{ participant_2.uch2email if participant_2 else '' }}" placeholder="Введите e-mail участника 2...">
+                <span id="uch2emailError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="uch2phoneNumber" name="uch2phoneNumber" value="{{ participant_2.uch2phoneNumber if participant_2 else '' }}" placeholder="Введите телефон участника 2...">
+                <span id="uch2phoneNumberError" class="error-message"></span>
+            </div>
+
+            <button type="submit">Далее</button>
+        </form>
+
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            // Очистка предыдущих сообщений об ошибках
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(error => error.textContent = '');
+
+            let valid = true;
+
+            // Универсальная функция валидации полей
+            function validateField(id, errorId, validationFn) {
+                const value = document.getElementById(id).value.trim();
+                const errorMessage = validationFn(value);
+                if (errorMessage) {
+                    document.getElementById(errorId).textContent = errorMessage;
+                    valid = false;
+                }
+            }
+
+            // Функции валидации
+            const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
+            const isEmailValid = value => (value.length === 0 ? 'Поле обязательно к заполнению' :
+                (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Введите корректный e-mail' : ''));
+            const isPhoneValid = value => (value.length === 0 ? 'Поле обязательно к заполнению' :
+                (!/^\+?\d{10,15}$/.test(value) ? 'Введите корректный номер телефона' : ''));
+            const isClassValid = value => {
+                if (value.length === 0) {
+                    return 'Поле обязательно к заполнению';
+                }
+                const number = parseInt(value, 10);
+                if (isNaN(number) || number < 1 || number > 11) {
+                    return 'Класс может быть от 1 до 11';
+                }
+                return '';
+            };
+
+            // Проверка значений полей
+            validateField('uch2Name', 'uch2NameError', isNotEmpty);
+            validateField('uch2Class', 'uch2ClassError', isClassValid);
+            validateField('uch2email', 'uch2emailError', isEmailValid);
+            validateField('uch2phoneNumber', 'uch2phoneNumberError', isPhoneValid);
+
+            // Если все поля валидны, отправляем данные на сервер
+            if (valid) {
+                const formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: this.method,
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Переход на следующую страницу, если сервер успешно обработал данные
+                        window.location.href = '/participant_3'; // Flask маршрут для следующей страницы
+                    } else {
+                        console.error('Ошибка на сервере:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка сети:', error);
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

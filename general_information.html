@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/style.css') }}">
+
+    <title>Общие сведения</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" method="POST" action="/general_information" novalidate>
+            <h2>Общие сведения</h2>
+
+            <div class="form-group">
+                <input type="text" id="comandName" name="comandName" value="{{ info.comandName if info else '' }}" placeholder="Введите название команды...">
+                <span id="comandNameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="schoolName" name="schoolName" value="{{ info.schoolName if info else '' }}" placeholder="Введите название школы...">
+                <span id="schoolNameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="cityName" name="cityName" value="{{ info.cityName if info else '' }}" placeholder="Введите город...">
+                <span id="cityNameError" class="error-message"></span>
+            </div>
+
+            <button type="submit">Далее</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            // Очистка предыдущих сообщений об ошибках
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(error => error.textContent = '');
+
+            let valid = true;
+
+            // Универсальная функция валидации полей
+            function validateField(id, errorId, validationFn) {
+                const value = document.getElementById(id).value.trim();
+                const errorMessage = validationFn(value);
+                if (errorMessage) {
+                    document.getElementById(errorId).textContent = errorMessage;
+                    valid = false;
+                }
+            }
+
+            // Функция валидации
+            const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
+
+            // Проверка значений полей
+            validateField('comandName', 'comandNameError', isNotEmpty);
+            validateField('schoolName', 'schoolNameError', isNotEmpty);
+            validateField('cityName', 'cityNameError', isNotEmpty);
+
+            // Если все поля валидны, форма отправляется на сервер
+            if (valid) {
+                const formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: this.method,
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Если сервер успешно обработал запрос, перенаправьте на новую страницу
+                        window.location.href = '/mentor'; // Переход на страницу /mentor
+                    } else {
+                        // Обработка ошибок сервера, если нужно
+                        console.error('Ошибка в обработке формы', response);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка сети', error);
+                });
+
+                // Отменим стандартное поведение отправки формы
+                event.preventDefault();
+            } else {
+                event.preventDefault(); // Не отправлять форму, если есть ошибки
+            }
+        });
+
+    </script>
+</body>
+
+</html>

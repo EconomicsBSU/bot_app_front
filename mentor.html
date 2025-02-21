@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/style.css') }}">
+
+    <title>Ментор</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" method="POST" action="/mentor" novalidate>
+            <h2>Информация о менторе</h2>
+
+            <div class="form-group">
+                <input type="text" id="mName" name="mName" value="{{ mentor.mName if mentor else '' }}" placeholder="Введите ФИО ментора...">
+                <span id="mNameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="mPost" name="mPost" value="{{ mentor.mPost if mentor else '' }}" placeholder="Введите должность ментора...">
+                <span id="mPostError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="email" id="memail" name="memail" value="{{ mentor.memail if mentor else '' }}" placeholder="Введите e-mail ментора...">
+                <span id="memailError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="mphoneNumber" name="mphoneNumber" value="{{ mentor.mphoneNumber if mentor else '' }}" placeholder="Введите телефон ментора...">
+                <span id="mphoneNumberError" class="error-message"></span>
+            </div>
+
+
+            <button type="submit">Далее</button>
+        </form>
+
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            // Очистка предыдущих сообщений об ошибках
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(error => error.textContent = '');
+
+            let valid = true;
+
+            // Универсальная функция валидации
+            function validateField(id, errorId, validationFns) {
+                const field = document.getElementById(id);
+                const value = field.value.trim();
+                const errorElement = document.getElementById(errorId);
+
+                for (let fn of validationFns) {
+                    const errorMessage = fn(value);
+                    if (errorMessage) {
+                        errorElement.textContent = errorMessage; // Записываем текст ошибки
+                        valid = false;
+                        return; // Выходим после первой ошибки
+                    }
+                }
+            }
+
+            // Функции валидации
+            const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
+            const isEmailValid = value => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Введите корректный e-mail' : '');
+            const isPhoneValid = value => (!/^\+?\d{10,15}$/.test(value) ? 'Введите корректный номер телефона' : '');
+
+            // Проверка значений
+            validateField('mName', 'mNameError', [isNotEmpty]); // Проверка имени
+            validateField('mPost', 'mPostError', [isNotEmpty]); // Проверка должности
+            validateField('memail', 'memailError', [isNotEmpty, isEmailValid]); // Проверка email
+            validateField('mphoneNumber', 'mphoneNumberError', [isNotEmpty, isPhoneValid]); // Проверка телефона
+
+            // Если ошибок нет, отправляем форму
+            if (valid) {
+                this.submit(); // Отправка формы
+            }
+        });
+    </script>
+
+</body>
+
+</html>

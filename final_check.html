@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Итоговая проверка</title>
+</head>
+
+<body>
+    <div class="registration-form check">
+        <form id="registrationForm" method="POST" action="/final_check" enctype="multipart/form-data" novalidate>
+
+            <div style="margin-bottom: 30px">
+                <h2>Общие сведения</h2>
+                <div class="form-group">
+                    <input type="text" id="comandName" name="comandName" placeholder="Введите название команды..." value="{{ general_info.comandName or '' }}">
+                    <span id="comandNameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="schoolName" name="schoolName" placeholder="Введите название школы..." value="{{ general_info.schoolName or '' }}">
+                    <span id="schoolNameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="cityName" name="cityName" placeholder="Введите город..." value="{{ general_info.cityName or '' }}">
+                    <span id="cityNameError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация о менторе</h2>
+                <div class="form-group">
+                    <input type="text" id="mName" name="mName" placeholder="Введите ФИО ментора..." value="{{ mentor.mName or '' }}">
+                    <span id="mNameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="mPost" name="mPost" placeholder="Введите должность ментора..." value="{{ mentor.mPost or '' }}">
+                    <span id="mPostError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="memail" name="memail" placeholder="Введите e-mail ментора..." value="{{ mentor.memail or '' }}">
+                    <span id="memailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="mphoneNumber" name="mphoneNumber" placeholder="Введите телефон ментора..." value="{{ mentor.mphoneNumber or '' }}">
+                    <span id="mphoneNumberError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация о капитане</h2>
+                <div class="form-group">
+                    <input type="text" id="captainName" name="captainName" placeholder="Введите ФИО капитана..." value="{{ captain_info.captainName or '' }}">
+                    <span id="captainNameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="captainClass" name="captainClass" placeholder="Введите класс..." value="{{ captain_info.captainClass or '' }}">
+                    <span id="captainClassError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="cemail" name="cemail" placeholder="Введите e-mail капитана..." value="{{ captain_info.cemail or '' }}">
+                    <span id="cemailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="cphoneNumber" name="cphoneNumber" placeholder="Введите телефон капитана..." value="{{ captain_info.cphoneNumber or '' }}">
+                    <span id="cphoneNumberError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация об участнике 1</h2>
+                <div class="form-group">
+                    <input type="text" id="uch1Name" name="uch1Name" placeholder="Введите ФИО участника 1..." value="{{ participant_1.uch1Name or '' }}">
+                    <span id="uch1NameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="uch1Class" name="uch1Class" placeholder="Введите класс..." value="{{ participant_1.uch1Class or '' }}">
+                    <span id="uch1ClassError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="uch1email" name="uch1email" placeholder="Введите e-mail участника 1..." value="{{ participant_1.uch1email or '' }}">
+                    <span id="uch1emailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="uch1phoneNumber" name="uch1phoneNumber" placeholder="Введите телефон участника 1..." value="{{ participant_1.uch1phoneNumber or '' }}">
+                    <span id="uch1phoneNumberError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация об участнике 2</h2>
+                <div class="form-group">
+                    <input type="text" id="uch2Name" name="uch2Name" placeholder="Введите ФИО участника 2..." value="{{ participant_2.uch2Name or '' }}">
+                    <span id="uch2NameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="uch2Class" name="uch2Class" placeholder="Введите класс..." value="{{ participant_2.uch2Class or '' }}">
+                    <span id="uch2ClassError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="uch2email" name="uch2email" placeholder="Введите e-mail участника 2..." value="{{ participant_2.uch2email or '' }}">
+                    <span id="uch2emailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="uch2phoneNumber" name="uch2phoneNumber" placeholder="Введите телефон участника 2..." value="{{ participant_2.uch2phoneNumber or '' }}">
+                    <span id="uch2phoneNumberError" class="error-message"></span>
+                </div>
+            </div>
+
+            {% if participant_3 %}
+            <div style="margin-bottom: 30px">
+                <h2>Информация об участнике 3</h2>
+                <div class="form-group">
+                    <input type="text" id="uch3Name" name="uch3Name" placeholder="Введите ФИО участника 3..." value="{{ participant_3.uch3Name or '' }}">
+                    <span id="uch3NameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="uch3Class" name="uch3Class" placeholder="Введите класс..." value="{{ participant_3.uch3Class or '' }}">
+                    <span id="uch3ClassError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="uch3email" name="uch3email" placeholder="Введите e-mail участника 3..." value="{{ participant_3.uch3email or '' }}">
+                    <span id="uch3emailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="uch3phoneNumber" name="uch3phoneNumber" placeholder="Введите телефон участника 3..." value="{{ participant_3.uch3phoneNumber or '' }}">
+                    <span id="uch3phoneNumberError" class="error-message"></span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 30px">
+                <h2>Фото команды</h2>
+
+                    <div class="upload active expanded" id="upload" data-id-user="{{ user_id }}">
+                        <img src="{{ url_for('static', filename='image/image 1.png') }}" class="icon_photo" alt="Прикрепить">
+                        {% if photo_id %}
+                        <p id="uploadText">Файл выбран: <b>{{ photo_filename }}</b></p>
+                        <input type="file" id="fileInput" name="file" accept="image/*" style="display: none;">
+                        <div id="previewContainer" style="margin-top: 10px;">
+                            <img id="imagePreview" src="{{ url_for('get_photo', photo_id=photo_id) }}" alt="Фото команды"
+                                 style="max-width: 100px; max-height: 100px; cursor: pointer;">
+                        </div>
+                        {% else %}
+                        <p>Фото команды не загружено.</p>
+                        {% endif %}
+                    </div>
+                    <input type="hidden" id="userId" value="{{ user_id }}">
+
+                <button type="submit">Отправить</button>
+                </div>
+        </form>
+    </div>
+
+    <script>
+        // Универсальная функция валидации поля
+        function validateField(id, errorId, validationFns) {
+            const field = document.getElementById(id);
+            if (!field) {
+                console.error(`Элемент с ID ${id} не найден!`);
+                return false;
+            }
+
+            const value = field.value.trim();
+            const errorElement = document.getElementById(errorId);
+            let valid = true;
+
+            for (let fn of validationFns) {
+                const errorMessage = fn(value);
+                if (errorMessage) {
+                    errorElement.textContent = errorMessage;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) errorElement.textContent = ''; // Очищаем сообщение об ошибке
+            return valid;
+        }
+
+        // Универсальная функция проверки всех полей
+        function validateAllFields() {
+            let allValid = true;
+
+            // Основные поля
+            allValid &= validateField('comandName', 'comandNameError', [isNotEmpty]);
+            allValid &= validateField('schoolName', 'schoolNameError', [isNotEmpty]);
+            allValid &= validateField('cityName', 'cityNameError', [isNotEmpty]);
+            allValid &= validateField('mName', 'mNameError', [isNotEmpty]);
+            allValid &= validateField('mPost', 'mPostError', [isNotEmpty]);
+            allValid &= validateField('memail', 'memailError', [isNotEmpty, isEmailValid]);
+            allValid &= validateField('mphoneNumber', 'mphoneNumberError', [isNotEmpty, isPhoneValid]);
+            allValid &= validateField('captainName', 'captainNameError', [isNotEmpty]);
+            allValid &= validateField('captainClass', 'captainClassError', [isNotEmpty, isClassValid]);
+            allValid &= validateField('cemail', 'cemailError', [isNotEmpty, isEmailValid]);
+            allValid &= validateField('cphoneNumber', 'cphoneNumberError', [isNotEmpty, isPhoneValid]);
+
+            // Участники
+            allValid &= validateField('uch1Name', 'uch1NameError', [isNotEmpty]);
+            allValid &= validateField('uch1Class', 'uch1ClassError', [isNotEmpty, isClassValid]);
+            allValid &= validateField('uch1email', 'uch1emailError', [isNotEmpty, isEmailValid]);
+            allValid &= validateField('uch1phoneNumber', 'uch1phoneNumberError', [isNotEmpty, isPhoneValid]);
+
+            allValid &= validateField('uch2Name', 'uch2NameError', [isNotEmpty]);
+            allValid &= validateField('uch2Class', 'uch2ClassError', [isNotEmpty, isClassValid]);
+            allValid &= validateField('uch2email', 'uch2emailError', [isNotEmpty, isEmailValid]);
+            allValid &= validateField('uch2phoneNumber', 'uch2phoneNumberError', [isNotEmpty, isPhoneValid]);
+
+            // Необязательные поля
+            const uch3FieldsExist = document.getElementById('uch3Name') && document.getElementById('uch3Class');
+            if (uch3FieldsExist) {
+                allValid &= validateField('uch3Name', 'uch3NameError', [isNotEmpty]);
+                allValid &= validateField('uch3Class', 'uch3ClassError', [isNotEmpty, isClassValid]);
+                allValid &= validateField('uch3email', 'uch3emailError', [isNotEmpty, isEmailValid]);
+                allValid &= validateField('uch3phoneNumber', 'uch3phoneNumberError', [isNotEmpty, isPhoneValid]);
+            }
+
+            return allValid;
+        }
+
+        // Функции валидации
+        const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
+        const isEmailValid = value => (!value.includes('@') || !value.includes('.') ? 'Введите корректный e-mail' : '');
+        const isPhoneValid = value => (!/^\+?\d{10,15}$/.test(value) ? 'Введите корректный номер телефона' : '');
+        const isClassValid = value => {
+            const number = parseInt(value, 10);
+            return isNaN(number) || number < 1 || number > 11 ? 'Класс может быть от 1 до 11' : '';
+        };
+
+        // Добавление событий для немедленной валидации при изменении полей
+        document.querySelectorAll('input').forEach(field => {
+            field.addEventListener('input', () => {
+                const errorId = `${field.id}Error`;
+                if (field.id.includes('email')) {
+                    validateField(field.id, errorId, [isNotEmpty, isEmailValid]);
+                } else if (field.id.includes('phoneNumber')) {
+                    validateField(field.id, errorId, [isNotEmpty, isPhoneValid]);
+                } else if (field.id.includes('class')) {
+                    validateField(field.id, errorId, [isNotEmpty, isClassValid]);
+                } else {
+                    validateField(field.id, errorId, [isNotEmpty]);
+                }
+            });
+        });
+
+        // Открытие диалога выбора файла при клике на область
+        document.getElementById('upload').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+            document.getElementById('upload').classList.add('active');
+        });
+
+        // Обработка выбора файла через диалог
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file); // Если файл выбран, обрабатываем его
+            }
+        });
+
+        // Функция обработки файла
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+                document.getElementById('uploadText').innerHTML = `Файл выбран: <b>${file.name}</b>`;
+            } else {
+                alert('Пожалуйста, выберите изображение!');
+                document.getElementById('previewContainer').style.display = 'none';
+            }
+        }
+
+        // Проверка формы перед отправкой
+        document.getElementById('registrationForm').addEventListener('submit', (e) => {
+            const allFieldsValid = validateAllFields();
+            const imageUploaded = document.getElementById('imagePreview').src;
+
+            if (!allFieldsValid || !imageUploaded) {
+                e.preventDefault(); // Блокируем отправку формы
+            }
+        });
+
+
+        <!--############# Без мгновенной проверки (сработает только после нажатия кнопки) #############-->
+
+        // // Открытие диалога выбора файла при клике на область
+        // document.getElementById('upload').addEventListener('click', () => {
+        //     document.getElementById('fileInput').click();
+        //     document.getElementById('upload').classList.add('active');
+        // });
+        //
+        // // Обработка выбора файла через диалог
+        // document.getElementById('fileInput').addEventListener('change', (e) => {
+        //     const file = e.target.files[0];
+        //     if (file) {
+        //         handleFile(file); // Если файл выбран, обрабатываем его
+        //     }
+        // });
+        //
+        // // Функция обработки файла
+        // function handleFile(file) {
+        //     if (file.type.startsWith('image/')) {
+        //         const reader = new FileReader();
+        //         reader.onload = (e) => {
+        //             document.getElementById('imagePreview').src = e.target.result; // Установка превью
+        //             document.getElementById('previewContainer').style.display = 'block'; // Показ превью контейнера
+        //         };
+        //         reader.readAsDataURL(file); // Чтение содержимого файла
+        //
+        //         document.getElementById('uploadText').innerHTML = `Файл выбран: <b>${file.name}</b>`;
+        //         document.getElementById('submit').disabled = false; // Активируем кнопку отправки
+        //     } else {
+        //         alert('Пожалуйста, выберите изображение!');
+        //         document.getElementById('previewContainer').style.display = 'none'; // Скрытие превью
+        //         document.getElementById('submit').disabled = true; // Отключаем кнопку отправки
+        //     }
+        // }
+        //
+        // document.getElementById('registrationForm').addEventListener('submit', function (e) {
+        //
+        //     let valid = true; // Флаг валидности формы
+        //
+        //     const file = document.getElementById('fileInput').files[0];
+        //     const imagePreviewSrc = document.getElementById('imagePreview').src;
+        //
+        //     // Очистка всех сообщений об ошибках
+        //     const errorMessages = document.querySelectorAll('.error-message');
+        //     errorMessages.forEach(error => error.textContent = '');
+        //
+        //     // Универсальная функция валидации
+        //     function validateField(id, errorId, validationFns) {
+        //         const field = document.getElementById(id);
+        //         if (!field) {
+        //             console.error(`Элемент с ID ${id} не найден!`);
+        //             return;
+        //         }
+        //
+        //         const value = field.value.trim();
+        //         const errorElement = document.getElementById(errorId);
+        //
+        //         for (let fn of validationFns) {
+        //             const errorMessage = fn(value);
+        //             if (errorMessage) {
+        //                 errorElement.textContent = errorMessage;
+        //                 valid = false; // Устанавливаем флаг валидности в false при ошибке
+        //                 return; // Прекращаем проверку после первой ошибки
+        //             }
+        //         }
+        //     }
+        //
+        //     function validateFieldIfExists(id, errorId, validationFns) {
+        //         const field = document.getElementById(id);
+        //         if (!field) return; // Если элемента нет, пропускаем валидацию
+        //
+        //         const value = field.value.trim();
+        //         const errorElement = document.getElementById(errorId);
+        //
+        //         for (let fn of validationFns) {
+        //             const errorMessage = fn(value);
+        //             if (errorMessage) {
+        //                 errorElement.textContent = errorMessage;
+        //                 valid = false; // Устанавливаем флаг валидности в false при ошибке
+        //                 return; // Прекращаем проверку после первой ошибки
+        //             }
+        //         }
+        //     }
+        //
+        //     // Функции валидации
+        //     const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
+        //     const isEmailValid = value => (!value.includes('@') || !value.includes('.') ? 'Введите корректный e-mail' : '');
+        //     const isPhoneValid = value => (!/^\+?\d{10,15}$/.test(value) ? 'Введите корректный номер телефона' : '');
+        //     const isClassValid = value => {
+        //         const number = parseInt(value, 10);
+        //         return isNaN(number) || number < 1 || number > 11 ? 'Класс может быть от 1 до 11' : '';
+        //     };
+        //
+        //     // Валидация всех полей
+        //     validateField('comandName', 'comandNameError', [isNotEmpty]);
+        //     validateField('schoolName', 'schoolNameError', [isNotEmpty]);
+        //     validateField('cityName', 'cityNameError', [isNotEmpty]);
+        //     validateField('mName', 'mNameError', [isNotEmpty]);
+        //     validateField('mPost', 'mPostError', [isNotEmpty]);
+        //     validateField('memail', 'memailError', [isNotEmpty, isEmailValid]);
+        //     validateField('mphoneNumber', 'mphoneNumberError', [isNotEmpty, isPhoneValid]);
+        //     validateField('captainName', 'captainNameError', [isNotEmpty]);
+        //     validateField('captainClass', 'captainClassError', [isNotEmpty, isClassValid]);
+        //     validateField('cemail', 'cemailError', [isNotEmpty, isEmailValid]);
+        //     validateField('cphoneNumber', 'cphoneNumberError', [isNotEmpty, isPhoneValid]);
+        //     validateField('uch1Name', 'uch1NameError', [isNotEmpty]);
+        //     validateField('uch1Class', 'uch1ClassError', [isNotEmpty, isClassValid]);
+        //     validateField('uch1email', 'uch1emailError', [isNotEmpty, isEmailValid]);
+        //     validateField('uch1phoneNumber', 'uch1phoneNumberError', [isNotEmpty, isPhoneValid]);
+        //     validateField('uch2Name', 'uch2NameError', [isNotEmpty]);
+        //     validateField('uch2Class', 'uch2ClassError', [isNotEmpty, isClassValid]);
+        //     validateField('uch2email', 'uch2emailError', [isNotEmpty, isEmailValid]);
+        //     validateField('uch2phoneNumber', 'uch2phoneNumberError', [isNotEmpty, isPhoneValid]);
+        //     validateFieldIfExists('uch3Name', 'uch3NameError', [isNotEmpty]);
+        //     validateFieldIfExists('uch3Class', 'uch3ClassError', [isNotEmpty, isClassValid]);
+        //     validateFieldIfExists('uch3email', 'uch3emailError', [isNotEmpty, isEmailValid]);
+        //     validateFieldIfExists('uch3phoneNumber', 'uch3phoneNumberError', [isNotEmpty, isPhoneValid]);
+        //
+        //     // Проверка наличия файла или превью
+        //     if (!file && (!imagePreviewSrc || imagePreviewSrc === '')) {
+        //         e.preventDefault(); // Отключаем стандартное поведение формы
+        //         alert('Пожалуйста, загрузите изображение!');
+        //         valid = false;
+        //     }
+        //
+        //     // Если форма невалидна, предотвращаем отправку
+        //     if (!valid) {
+        //         e.preventDefault();
+        //         return;
+        //     }
+        //
+        //     // Отправка файла на сервер (если файл выбран)
+        //     if (file) {
+        //         const formData = new FormData();
+        //         const userId = document.getElementById('userId').value;
+        //
+        //         formData.append('file', file);
+        //         formData.append('user_id', userId);
+        //
+        //         fetch('/upload', {
+        //             method: 'POST',
+        //             body: formData,
+        //         })
+        //             .then((response) => {
+        //                 if (response.ok) {
+        //                     alert('Файл успешно загружен!');
+        //                 }
+        //             })
+        //             .catch(() => alert('Произошла ошибка при загрузке.'));
+        //     }
+        // });
+        </script>
+
+</body>
+</html>

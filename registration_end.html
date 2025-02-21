@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
+    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/styles.css') }}">
+
+    <title>Конец регистрации</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="{{ url_for ( 'static', filename='image/logo.png') }}" class="corner-image">
+        <h2>Вы успешно прошли регистрацию!</h2>
+        <div>
+            <h6 style="text-align: center;"> В разделе "Помощь" вы можете найти Памятку участника и Инструкцию по регистрации на портале.
+                <br><br>❓ В случае возникновения вопросов воспользуйтесь командой /help и задайте свой вопрос.
+                <br><br>Желаем удачи!</h6>    
+        </div>
+        <button type="button" onclick="redirectToHome()">Спасибо!</button>
+    </div>
+
+    <script>
+        function redirectToHome() {
+            window.location.href = "{{ url_for('index') }}";
+        }
+    </script>
+
+</body>
+
+</html>
