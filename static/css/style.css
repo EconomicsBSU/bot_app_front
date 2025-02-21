@@ -1,0 +1,205 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+a {
+    text-decoration: none;
+}
+
+/*-------ОЧИЩЕНИЕ СТАНДАРТНЫХ СТИЛЕЙ-------*/
+
+
+body {
+    margin: 0;
+    height: 100vh; /* Устанавливаем высоту на 100% высоты окна, чтобы центрировать */
+    /*overflow: hidden; !* Убирает скроллинг *!*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter';
+    background-color: #ecedfe;
+    /*max-height: 90vh; !* Ограничиваем высоту формы *!*/
+    overflow-y: scroll; /* Включаем вертикальную прокрутку */
+    scrollbar-width: none; /* Убираем полосу прокрутки в Firefox */
+    -ms-overflow-style: none; /* Убираем полосу прокрутки в IE и Edge */
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box; 
+    width: 100%;
+    max-width: 400px;
+    padding: 120px 50px;
+}
+
+.registration-form.check {
+    margin: auto;
+}
+
+.form-group {
+    margin-bottom: 10px; /* Пространство между полями */
+}
+
+/*.form-group input {*/
+/*    width: 100%; */
+/*    padding: 20px;*/
+/*    margin-bottom: 10px; */
+/*    border: 2px solid #9e9ba7; */
+/*    border-radius: 15px;*/
+/*    font-size: 16px;*/
+/*    color: #9e9ba7; */
+/*    background-color: white; !* Белый фон для input *!*/
+/*    box-sizing: border-box;*/
+/*    transition: border-color 0.3s, color 0.3s; !* Плавный переход для цвета границы и текста *!*/
+/*}*/
+
+.form-group input {
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 2px solid #9e9ba7;
+    border-radius: 15px;
+    font-size: 16px;
+    color: #9e9ba7;
+    background-color: white; /* Белый фон для input */
+    box-sizing: border-box;
+    transition: border-color 0.3s, color 0.3s; /* Плавный переход для цвета границы и текста */
+}
+
+/* Убираем стрелочки в input type="number" */
+.form-group input[type="number"]::-webkit-inner-spin-button,
+.form-group input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-group input[type="number"] {
+    -moz-appearance: textfield; /* Убирает стрелочки в Firefox */
+}
+
+
+.form-group input:focus {
+    border-color: #444444; 
+    outline: none; /* Убираем стандартный обвод при фокусе */
+}
+
+.form-group input:valid {
+    color: #444444;
+}
+
+body::-webkit-scrollbar {
+    display: none; /* Убираем полосу прокрутки в Chrome, Safari и других WebKit-браузерах */
+}
+
+.error-message { 
+    padding-left: 20px;
+    color: red; 
+    font-size: 0.875em; 
+} 
+
+.upload {
+    height: 140px;
+    margin: auto;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    color: #9e9ba7; 
+    text-align: center;
+    background-color: #ffffff;
+    border: 2px dashed #9e9ba7;
+    border-radius: 15px;
+    padding: 30px 60px 0;
+    cursor: pointer;
+    box-sizing: border-box; 
+    position: relative; /* Позволяет элементам внутри использовать абсолютные позиции */
+}
+
+.upload.expanded {
+    height: 250px; 
+}
+
+.upload.active {
+    border: 2px dashed #444444;
+}
+
+button {
+    display: block; /* Обеспечивает корректный рендеринг */
+    margin: auto;
+    margin-bottom: 10px;
+
+    padding: 10px 40px; 
+    font-size: 22px;
+    text-align: center;
+    color: #444444;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 15px; 
+    cursor: pointer;
+    box-sizing: border-box; 
+}
+
+button:hover {
+    background-color: #4c00ce;
+    color: white;
+}
+
+h2 {
+    margin-bottom: 30px; 
+    color: #444444;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    justify-content: center;
+}
+
+.icon_photo {
+    position: absolute; 
+    top: 25px;
+    left: 50%; /* Центрирование по горизонтали */
+    transform: translateX(-50%); /* Смещение влево на 50% для центрирования */
+    width: 25px; /* Ширина иконки */
+    height: auto; /* Сохранение пропорций */
+}
