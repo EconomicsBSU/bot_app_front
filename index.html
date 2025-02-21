@@ -12,21 +12,21 @@ fetch('http://<IP_СЕРВЕРА>:5000/api/data')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="{{ url_for ( 'static', filename='font/stylesheet.css') }}">
-    <link rel="stylesheet" href="{{ url_for ( 'static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="static/font/stylesheet.css">
+    <link rel="stylesheet" href="static/css/styles.css">
 
     <title>Главная</title>
 </head>
 
 <body>
     <div class="registration-form">
-        <img src="{{ url_for ( 'static', filename='image/logo.png') }}" class="corner-image">
+        <img src="static/image/logo.png'" class="corner-image">
         <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
         <div class="footer-text">
             <p>Выберите интересующий вас раздел, нажав на меню.</p>
         </div>
-        <a href="{{ url_for('selection') }}">
-            <img src="{{ url_for ( 'static', filename='image/menu.png') }}" class="bottom-icon-menu" alt="Меню"> <!-- alt добавлен для доступности и SEO -->
+        <a href="selection">
+            <img src="static/image/menu.png" class="bottom-icon-menu" alt="Меню"> <!-- alt добавлен для доступности и SEO -->
         </a>
     </div>
 </body>
