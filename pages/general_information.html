@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="static/filename='font/stylesheet.css">
-    <link rel="stylesheet" href="static/filename='css/style.css">
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
 
     <title>Общие сведения</title>
 </head>
@@ -73,7 +73,7 @@
                 .then(response => {
                     if (response.ok) {
                         // Если сервер успешно обработал запрос, перенаправьте на новую страницу
-                        window.location.href = '/mentor'; // Переход на страницу /mentor
+                        window.location.href = 'mentor.html'; // Переход на страницу /mentor
                     } else {
                         // Обработка ошибок сервера, если нужно
                         console.error('Ошибка в обработке формы', response);

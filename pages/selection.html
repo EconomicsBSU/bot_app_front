@@ -6,23 +6,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="static/filename='font/stylesheet.css">
-    <link rel="stylesheet" href="static/filename='css/styles.css">
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
 
     <title>Главная</title>
 </head>
 
 <body>
     <div class="registration-form">
-        <img src="static/filename='image/logo.png" class="corner-image">
+        <img src="../static/image/logo.png" class="corner-image">
         <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
-        <a href="{{ url_for('privacy_policy">
+        <a href="privacy_policy.html">
             <button type="submit">Регистрация</button>
         </a>
         <button type="submit" id="team-info-button" onclick="checkData()">Инфо о команде</button>
         <button type="submit">FAQ</button>
-        <a href="../index">
-            <img src="static/filename='image/cross.png" class="bottom-icon-cross" alt="Закрыть"> <!-- alt добавлен для доступности и SEO -->
+        <a href="../index.html">
+            <img src="../static/image/cross.png" class="bottom-icon-cross" alt="Закрыть"> <!-- alt добавлен для доступности и SEO -->
         </a>
     </div>
 
