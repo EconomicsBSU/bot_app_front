@@ -1,10 +1,4 @@
 <!DOCTYPE html>
-fetch('http://<IP_СЕРВЕРА>:5000/api/data')
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('output').innerText = data.message;
-    })
-    .catch(error => console.error('Ошибка:', error));
 <html lang="ru">
 
 <head>
@@ -20,12 +14,12 @@ fetch('http://<IP_СЕРВЕРА>:5000/api/data')
 
 <body>
     <div class="registration-form">
-        <img src="static/image/logo.png'" class="corner-image">
+        <img src="static/image/logo.png" class="corner-image">
         <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
         <div class="footer-text">
             <p>Выберите интересующий вас раздел, нажав на меню.</p>
         </div>
-        <a href="selection">
+        <a href="pages/selection">
             <img src="static/image/menu.png" class="bottom-icon-menu" alt="Меню"> <!-- alt добавлен для доступности и SEO -->
         </a>
     </div>
