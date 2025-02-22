@@ -4,15 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c8431bc-e399-4f0d-9b85-da82a950e155" name="Changes" comment="link_2">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/captain_info.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/captain_info.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/final_check.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/final_check.html" afterDir="false" />
+    <list default="true" id="0c8431bc-e399-4f0d-9b85-da82a950e155" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/pages/participant_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/participant_1.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/participant_2.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/participant_2.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/participant_3.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/participant_3.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/photo.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/photo.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/registration_end.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/registration_end.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,35 +13,24 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
-    <option name="PREVIOUS_COMMIT_AUTHORS">
-      <list>
-        <option value="tatianaburenok &lt;tatakisa85@gmail.com&gt;" />
-      </list>
-    </option>
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="SWAP_SIDES_IN_COMPARE_BRANCHES" value="true" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;tatianaburenok&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "tatianaburenok"
   }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/EconomicsBSU/bot_app_front.git&quot;,
-    &quot;accountId&quot;: &quot;ce8c2c94-5f28-4ab3-a35b-8e74b47aac28&quot;
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/EconomicsBSU/bot_app_front.git",
+    "accountId": "ce8c2c94-5f28-4ab3-a35b-8e74b47aac28"
   }
-}</component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 5
-}</component>
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 5
+}]]></component>
   <component name="ProjectId" id="2tOXjWc2jBf5UhgQQ8Z1jOxICJ4" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -56,13 +38,8 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "JavaScript Debug.captain_info.html.executor": "Run",
-    "JavaScript Debug.final_check.html.executor": "Run",
-    "JavaScript Debug.general_information.html.executor": "Run",
-    "JavaScript Debug.index.html.executor": "Run",
-    "JavaScript Debug.registration_end.html.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "#1 on Tania__branch",
+    "git-widget-placeholder": "Tania__branch",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -87,25 +64,11 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1740224230493</updated>
-      <workItem from="1740224231937" duration="871000" />
-      <workItem from="1740232372942" duration="367000" />
+      <workItem from="1740224231937" duration="369000" />
     </task>
-    <task id="LOCAL-00001" summary="link_2">
-      <option name="closed" value="true" />
-      <created>1740224978299</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1740224978299</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="link_2" />
-    <option name="LAST_COMMIT_MESSAGE" value="link_2" />
   </component>
 </project>
