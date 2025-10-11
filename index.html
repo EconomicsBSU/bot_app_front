@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="./font/stylesheet.css">
+    <link rel="stylesheet" href="./css/styles.css">
+
+    <title>Главная</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="./image/logo.png" class="corner-image" alt="Логотип">
+        <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
+        <div class="footer-text">
+            <p>Выберите интересующий вас раздел, нажав на меню.</p>
+        </div>
+        <a href="./selection.html">
+            <img src="./image/menu.png" class="bottom-icon-menu" alt="Меню">
+        </a>
+    </div>
+
+    <!-- Конфигурация API -->
+    <script>
+        // URL вашего Backend API сервера
+        const API_BASE_URL = 'https://your-domain.com/api'; // ЗАМЕНИТЕ НА ВАШ ДОМЕН
+        
+        // Инициализация Telegram Web App
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+        }
+    </script>
+</body>
+
+</html>
