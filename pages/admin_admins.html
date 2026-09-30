@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/admin.css">
+
+    <title>Администраторы</title>
+</head>
+
+<body class="admin-body">
+    <div class="admin-page">
+        <a class="back-link" href="admin.html">&larr; Назад</a>
+        <h2 class="admin-title">Администраторы</h2>
+
+        <div class="card">
+            <div class="section-title">Добавить доступ</div>
+            <input type="text" id="tgId" class="search-input" inputmode="numeric" placeholder="Telegram ID числа, напр. 987654321">
+            <span id="tgIdError" class="error-message"></span>
+            <input type="text" id="adminName" class="search-input" placeholder="Имя или должность (необязательно)">
+            <button type="button" id="add-button">Добавить</button>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Кто имеет доступ</div>
+            <div id="list"></div>
+        </div>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        const listEl = document.getElementById("list");
+        const addButton = document.getElementById("add-button");
+        let admins = [];
+
+        function render() {
+            if (!admins.length) {
+                listEl.innerHTML = '<div class="empty-note">Список пуст</div>';
+                return;
+            }
+            listEl.innerHTML = admins.map((admin) => {
+                const title = admin.name ? escHtml(admin.name) + " · " + escHtml(admin.tg_id) : escHtml(admin.tg_id);
+                const badge = admin.is_owner ? '<span class="badge progress">владелец</span>' : "";
+                const remove = admin.can_remove
+                    ? '<button type="button" class="remove-button" data-id="' + escHtml(admin.tg_id) + '">Удалить</button>'
+                    : "";
+                return '<div class="admin-row"><span>' + title + badge + "</span>" + remove + "</div>";
+            }).join("");
+        }
+
+        function load() {
+            return API.get("/api/admin/admins")
+                .then((data) => { admins = data.admins || []; render(); })
+                .catch((error) => {
+                    if (error.status === 403) {
+                        window.location.replace("selection.html");
+                        return;
+                    }
+                    alert(error.message);
+                });
+        }
+
+        addButton.addEventListener("click", async () => {
+            const tgId = document.getElementById("tgId").value.trim();
+            const name = document.getElementById("adminName").value.trim();
+            if (!/^\d+$/.test(tgId)) {
+                setFieldError("tgId", "Введите Telegram ID — только цифры");
+                return;
+            }
+            clearErrors();
+            addButton.disabled = true;
+            try {
+                await API.post("/api/admin/admins", { tg_id: tgId, name });
+                document.getElementById("tgId").value = "";
+                document.getElementById("adminName").value = "";
+                await load();
+            } catch (error) {
+                handleApiError(error);
+            }
+            addButton.disabled = false;
+        });
+
+        listEl.addEventListener("click", async (event) => {
+            const button = event.target.closest(".remove-button");
+            if (!button) return;
+            if (!confirm("Закрыть доступ для " + button.dataset.id + "?")) return;
+            try {
+                await API.del("/api/admin/admins/" + button.dataset.id);
+                await load();
+            } catch (error) {
+                handleApiError(error);
+            }
+        });
+
+        load();
+    </script>
+</body>
+
+</html>

@@ -193,3 +193,34 @@ body.admin-body {
     font-size: 14px;
     padding: 24px 0;
 }
+
+/* Список администраторов */
+.admin-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #444444;
+    border-bottom: 1px solid #eeedf3;
+}
+
+.admin-row:last-child {
+    border-bottom: none;
+}
+
+.admin-row .badge {
+    margin: 0 0 0 6px;
+}
+
+.remove-button {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #b3261e;
+    background: none;
+    border: 1px solid #b3261e;
+    border-radius: 10px;
+    cursor: pointer;
+}

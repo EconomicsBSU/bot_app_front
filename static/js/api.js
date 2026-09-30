@@ -72,6 +72,9 @@
         upload(path, formData) {
             return apiFetch(path, { method: "POST", headers: initHeaders(), body: formData });
         },
+        del(path) {
+            return apiFetch(path, { method: "DELETE", headers: initHeaders() });
+        },
         async photoUrl(path) {
             const response = await fetch(baseUrl() + path, { headers: initHeaders() });
             if (!response.ok) return null;

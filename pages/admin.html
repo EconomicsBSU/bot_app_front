@@ -23,6 +23,9 @@
             <button type="button">Команды</button>
         </a>
         <button type="button" id="export-button">Экспорт в Excel</button>
+        <a href="admin_admins.html" id="admins-link">
+            <button type="button">Администраторы</button>
+        </a>
         <a href="selection.html">
             <button type="button">Назад</button>
         </a>
@@ -35,6 +38,11 @@
             .then((data) => {
                 if (!data.is_admin) {
                     window.location.replace("selection.html");
+                    return;
+                }
+                // Список администраторов доступен только владельцу панели.
+                if (!data.is_owner) {
+                    document.getElementById("admins-link").style.display = "none";
                 }
             })
             .catch(() => {});
