@@ -1,0 +1,195 @@
+/* Стили админ-раздела (используются вместе с style.css) */
+
+body.admin-body {
+    display: block;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: scroll;
+    padding: 24px 0 48px;
+}
+
+.admin-page {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.admin-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #444444;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #4c00ce;
+    text-decoration: none;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 2px solid #e3e2ea;
+    border-radius: 15px;
+    padding: 18px 12px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.stat-card .stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4c00ce;
+}
+
+.stat-card .stat-label {
+    font-size: 13px;
+    color: #9e9ba7;
+    margin-top: 6px;
+}
+
+.card {
+    background: #ffffff;
+    border: 2px solid #e3e2ea;
+    border-radius: 15px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-sizing: border-box;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4c00ce;
+    margin: 0 0 8px;
+}
+
+.team-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #ffffff;
+    border: 2px solid #e3e2ea;
+    border-radius: 15px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.team-card:hover {
+    border-color: #4c00ce;
+}
+
+.team-card .team-name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #444444;
+}
+
+.team-card .team-sub {
+    font-size: 13px;
+    color: #9e9ba7;
+    margin-top: 4px;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 12px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    margin-top: 8px;
+}
+
+.badge.done {
+    background: #e6f7d4;
+    color: #3a7a12;
+}
+
+.badge.progress {
+    background: #f0eafc;
+    color: #4c00ce;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #9e9ba7;
+    border-radius: 15px;
+    font-size: 16px;
+    color: #444444;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+}
+
+.search-input:focus {
+    border-color: #4c00ce;
+    outline: none;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #eeedf3;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row .info-label {
+    color: #9e9ba7;
+    flex-shrink: 0;
+}
+
+.info-row .info-value {
+    color: #444444;
+    text-align: right;
+    word-break: break-word;
+}
+
+.score-row {
+    display: flex;
+    gap: 10px;
+}
+
+.score-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.city-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #eeedf3;
+}
+
+.city-row:last-child {
+    border-bottom: none;
+}
+
+.empty-note {
+    text-align: center;
+    color: #9e9ba7;
+    font-size: 14px;
+    padding: 24px 0;
+}

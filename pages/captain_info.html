@@ -14,94 +14,50 @@
 
 <body>
     <div class="registration-form">
-        <form id="registrationForm" method="POST" action="/captain_info" novalidate>
+        <form id="registrationForm" novalidate>
             <h2>Информация о капитане команды</h2>
 
-                <div class="form-group">
-                    <input type="text" id="captainName" name="captainName" value="{{ captain.captainName if captain else '' }}" placeholder="Введите ФИО капитана...">
-                    <span id="captainNameError" class="error-message"></span>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="captainClass" name="captainClass" value="{{ captain.captainClass if captain else '' }}" placeholder="Введите класс...">
-                    <span id="captainClassError" class="error-message"></span>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="cemail" name="cemail" value="{{ captain.cemail if captain else '' }}" placeholder="Введите e-mail капитана...">
-                    <span id="cemailError" class="error-message"></span>
-                </div>
-                <div class="form-group">
-                    <input type="tel" id="cphoneNumber" name="cphoneNumber" value="{{ captain.cphoneNumber if captain else '' }}" placeholder="Введите телефон капитана...">
-                    <span id="cphoneNumberError" class="error-message"></span>
-                </div>
+            <div class="form-group">
+                <input type="text" id="full_name" name="full_name" placeholder="Введите ФИО капитана...">
+                <span id="full_nameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="number" id="grade" name="grade" placeholder="Введите класс...">
+                <span id="gradeError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Введите e-mail капитана...">
+                <span id="emailError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" placeholder="Введите телефон капитана...">
+                <span id="phoneError" class="error-message"></span>
+            </div>
 
             <button type="submit">Далее</button>
         </form>
-
     </div>
 
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
     <script>
-        document.getElementById('registrationForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Отключаем стандартное поведение формы
-
-            // Очистка предыдущих сообщений об ошибках
-            const errorMessages = document.querySelectorAll('.error-message');
-            errorMessages.forEach(error => error.textContent = '');
-
-            let valid = true;
-
-            // Универсальная функция валидации полей
-            function validateField(id, errorId, validationFn) {
-                const value = document.getElementById(id).value.trim();
-                const errorMessage = validationFn(value);
-                if (errorMessage) {
-                    document.getElementById(errorId).textContent = errorMessage;
-                    valid = false;
-                }
-            }
-
-            // Функции валидации
-            const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
-            const isEmailValid = value => (value.length === 0 ? 'Поле обязательно к заполнению' :
-                (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Введите корректный e-mail' : ''));
-            const isPhoneValid = value => (value.length === 0 ? 'Поле обязательно к заполнению' :
-                (!/^\+?\d{10,15}$/.test(value) ? 'Введите корректный номер телефона' : ''));
-            const isClassValid = value => {
-                if (value.length === 0) {
-                    return 'Поле обязательно к заполнению';
-                }
-                const number = parseInt(value, 10);
-                if (isNaN(number) || number < 1 || number > 11) {
-                    return 'Класс может быть от 1 до 11';
-                }
-                return '';
-            };
-
-            // Проверка значений полей
-            validateField('captainName', 'captainNameError', isNotEmpty);
-            validateField('captainClass', 'captainClassError', isClassValid);
-            validateField('cemail', 'cemailError', isEmailValid);
-            validateField('cphoneNumber', 'cphoneNumberError', isPhoneValid);
-
-            // Если все поля валидны, отправляем форму на сервер
-            if (valid) {
-                const formData = new FormData(this);
-
-                fetch(this.action, {
-                    method: this.method,
-                    body: formData,
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // Переход на следующую страницу, если сервер успешно обработал данные
-                            window.location.href = '/participant_1';
-                        } else {
-                            console.error('Ошибка в обработке формы', response);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Ошибка сети', error);
-                    });
-            }
+        bindRegForm({
+            formId: "registrationForm",
+            endpoint: "/api/reg/captain",
+            next: "participant.html?n=1",
+            fill: (team) => {
+                const captain = team.captain || {};
+                document.getElementById("full_name").value = captain.full_name || "";
+                document.getElementById("grade").value = captain.grade || "";
+                document.getElementById("email").value = captain.email || "";
+                document.getElementById("phone").value = captain.phone_number || "";
+            },
+            fields: [
+                { id: "full_name", fns: [Validators.notEmpty] },
+                { id: "grade", fns: [Validators.grade] },
+                { id: "email", fns: [Validators.email] },
+                { id: "phone", fns: [Validators.phone] },
+            ],
         });
     </script>
 </body>

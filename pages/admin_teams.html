@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/admin.css">
+
+    <title>Команды</title>
+</head>
+
+<body class="admin-body">
+    <div class="admin-page">
+        <a class="back-link" href="admin.html">&larr; Назад</a>
+        <h2 class="admin-title">Команды</h2>
+
+        <input type="text" id="search" class="search-input" placeholder="Поиск: название, город, школа, ФИО...">
+        <div id="teams"></div>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        const searchInput = document.getElementById("search");
+        const teamsContainer = document.getElementById("teams");
+        let searchTimer = null;
+
+        function renderTeams(items) {
+            if (!items.length) {
+                teamsContainer.innerHTML = '<div class="empty-note">Команды не найдены</div>';
+                return;
+            }
+            teamsContainer.innerHTML = items.map((team) => {
+                const sub = [team.city, team.school].filter(Boolean).join(", ");
+                const badge = team.finished
+                    ? '<span class="badge done">Регистрация завершена</span>'
+                    : '<span class="badge progress">В процессе</span>';
+                return '<button type="button" class="team-card" data-id="' + escHtml(team.team_id) + '">' +
+                    '<div class="team-name">' + escHtml(team.team_name) + "</div>" +
+                    (sub ? '<div class="team-sub">' + escHtml(sub) + "</div>" : "") +
+                    (team.captain_name ? '<div class="team-sub">Капитан: ' + escHtml(team.captain_name) + "</div>" : "") +
+                    '<div class="team-sub">Участников: ' + escHtml(team.members) + "</div>" +
+                    badge + "</button>";
+            }).join("");
+
+            teamsContainer.querySelectorAll(".team-card").forEach((card) => {
+                card.addEventListener("click", () => {
+                    window.location.href = "admin_team.html?id=" + encodeURIComponent(card.dataset.id);
+                });
+            });
+        }
+
+        function loadTeams(query) {
+            const path = "/api/admin/teams" + (query ? "?q=" + encodeURIComponent(query) : "");
+            teamsContainer.innerHTML = '<div class="empty-note">Загрузка...</div>';
+            API.get(path)
+                .then((data) => renderTeams(data.teams || []))
+                .catch((error) => {
+                    if (error.status === 403) {
+                        window.location.replace("selection.html");
+                        return;
+                    }
+                    teamsContainer.innerHTML = '<div class="empty-note">' + escHtml(error.message) + "</div>";
+                });
+        }
+
+        searchInput.addEventListener("input", () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => loadTeams(searchInput.value.trim()), 300);
+        });
+
+        loadTeams("");
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/admin.css">
+
+    <title>Статистика</title>
+</head>
+
+<body class="admin-body">
+    <div class="admin-page">
+        <a class="back-link" href="admin.html">&larr; Назад</a>
+        <h2 class="admin-title">Статистика</h2>
+
+        <div class="stat-grid" id="stats"></div>
+        <div class="card">
+            <div class="section-title">Города</div>
+            <div id="cities"></div>
+        </div>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        function statCard(value, label) {
+            return '<div class="stat-card"><div class="stat-value">' + escHtml(value) +
+                '</div><div class="stat-label">' + escHtml(label) + "</div></div>";
+        }
+
+        API.get("/api/admin/stats")
+            .then((data) => {
+                const stats = data.stats;
+                document.getElementById("stats").innerHTML =
+                    statCard(stats.teams, "Команд") +
+                    statCard(stats.finished, "Завершили регистрацию") +
+                    statCard(stats.in_progress, "В процессе") +
+                    statCard(stats.captains, "Капитанов") +
+                    statCard(stats.participants, "Участников") +
+                    statCard(stats.mentors, "Менторов");
+
+                const cities = stats.cities || [];
+                document.getElementById("cities").innerHTML = cities.length
+                    ? cities.map((item) =>
+                        '<div class="city-row"><span>' + escHtml(item.city) +
+                        '</span><span>' + escHtml(item.count) + "</span></div>").join("")
+                    : '<div class="empty-note">Пока нет данных</div>';
+            })
+            .catch((error) => {
+                if (error.status === 403) {
+                    window.location.replace("selection.html");
+                    return;
+                }
+                alert(error.message);
+            });
+    </script>
+</body>
+
+</html>

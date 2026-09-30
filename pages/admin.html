@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/admin.css">
+
+    <title>Админ-панель</title>
+</head>
+
+<body class="admin-body">
+    <div class="admin-page">
+        <h2 class="admin-title">Админ-панель</h2>
+        <a href="admin_stats.html">
+            <button type="button">Статистика</button>
+        </a>
+        <a href="admin_teams.html">
+            <button type="button">Команды</button>
+        </a>
+        <button type="button" id="export-button">Экспорт в Excel</button>
+        <a href="selection.html">
+            <button type="button">Назад</button>
+        </a>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        API.get("/api/reg/state")
+            .then((data) => {
+                if (!data.is_admin) {
+                    window.location.replace("selection.html");
+                }
+            })
+            .catch(() => {});
+
+        document.getElementById("export-button").addEventListener("click", async () => {
+            const button = document.getElementById("export-button");
+            button.disabled = true;
+            try {
+                await API.download("/api/admin/export", "ФЦГ_команды.xlsx");
+            } catch (error) {
+                alert(error.message);
+            }
+            button.disabled = false;
+        });
+    </script>
+</body>
+
+</html>

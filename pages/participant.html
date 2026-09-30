@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+
+    <title>Участник команды</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" novalidate>
+            <h2 id="title">Информация об участнике</h2>
+
+            <div class="form-group">
+                <input type="text" id="full_name" name="full_name" placeholder="Введите ФИО участника...">
+                <span id="full_nameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="number" id="grade" name="grade" placeholder="Введите класс...">
+                <span id="gradeError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Введите e-mail участника...">
+                <span id="emailError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" placeholder="Введите телефон участника...">
+                <span id="phoneError" class="error-message"></span>
+            </div>
+
+            <button type="submit">Далее</button>
+            <button type="button" id="skip-button" style="display: none;">Пропустить</button>
+        </form>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        let number = parseInt(new URLSearchParams(window.location.search).get("n") || "1", 10);
+        if (isNaN(number) || number < 1 || number > 3) number = 1;
+
+        document.getElementById("title").textContent = "Информация об участнике " + number;
+        const nextPage = number < 3 ? "participant.html?n=" + (number + 1) : "photo.html";
+        const skipButton = document.getElementById("skip-button");
+        if (number === 3) {
+            skipButton.style.display = "";
+        }
+
+        bindRegForm({
+            formId: "registrationForm",
+            endpoint: "/api/reg/participant",
+            next: nextPage,
+            fill: (team) => {
+                const participant = (team.participants || [])[number - 1] || {};
+                document.getElementById("full_name").value = participant.full_name || "";
+                document.getElementById("grade").value = participant.grade || "";
+                document.getElementById("email").value = participant.email || "";
+                document.getElementById("phone").value = participant.phone_number || "";
+            },
+            build: () => {
+                return Object.assign({ number: number }, {
+                    full_name: document.getElementById("full_name").value,
+                    grade: document.getElementById("grade").value,
+                    email: document.getElementById("email").value,
+                    phone: document.getElementById("phone").value,
+                });
+            },
+            fields: [
+                { id: "full_name", fns: [Validators.notEmpty] },
+                { id: "grade", fns: [Validators.grade] },
+                { id: "email", fns: [Validators.email] },
+                { id: "phone", fns: [Validators.phone] },
+            ],
+        });
+
+        skipButton.addEventListener("click", async () => {
+            skipButton.disabled = true;
+            try {
+                await API.post("/api/reg/participant", { number: 3, skip: true });
+                window.location.href = "photo.html";
+            } catch (error) {
+                skipButton.disabled = false;
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

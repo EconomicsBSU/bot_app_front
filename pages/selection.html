@@ -8,8 +8,12 @@
 
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css">
+    <style>
+        /* Четыре кнопки + крестик внизу: приподнимаем контент, чтобы кнопка не перекрывалась крестиком */
+        .registration-form { padding-top: 170px; }
+    </style>
 
-    <title>Главная</title>
+    <title>Меню</title>
 </head>
 
 <body>
@@ -17,38 +21,36 @@
         <img src="../static/image/logo.png" class="corner-image">
         <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
         <a href="privacy_policy.html">
-            <button type="submit">Регистрация</button>
+            <button type="button">Регистрация</button>
         </a>
-        <button type="submit" id="team-info-button" onclick="checkData()">Инфо о команде</button>
-        <button type="submit">FAQ</button>
+        <button type="button" id="team-info-button">Инфо о команде</button>
+        <button type="button" id="faq-button">FAQ</button>
+        <a href="admin.html" id="admin-link" style="display: none;">
+            <button type="button">Админ-панель</button>
+        </a>
         <a href="../index.html">
-            <img src="../static/image/cross.png" class="bottom-icon-cross" alt="Закрыть"> <!-- alt добавлен для доступности и SEO -->
+            <img src="../static/image/cross.png" class="bottom-icon-cross" alt="Закрыть">
         </a>
     </div>
 
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
     <script>
-        // Функция для проверки заполненности данных
-        function checkData() {
-            // Сделаем запрос для проверки, заполнены ли данные
-            fetch("/final_check", {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
+        API.get("/api/reg/state")
+            .then((data) => {
+                if (data.is_admin) {
+                    document.getElementById("admin-link").style.display = "";
                 }
             })
-            .then(response => {
-                if (response.redirected) {
-                    // Если данные не заполнены, то перенаправляем
-                    window.location.href = response.url;
-                } else {
-                    // Если все ок, то переходим на страницу "Инфо о команде"
-                    window.location.href = "/final_check";
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-            });
-        }
+            .catch(() => {});
+
+        document.getElementById("team-info-button").addEventListener("click", () => {
+            window.location.href = "final_check.html";
+        });
+
+        document.getElementById("faq-button").addEventListener("click", () => {
+            alert("В случае возникновения вопросов воспользуйтесь командой /help в чате с ботом и задайте свой вопрос.");
+        });
     </script>
 </body>
 

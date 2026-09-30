@@ -14,82 +14,44 @@
 
 <body>
     <div class="registration-form">
-        <form id="registrationForm" method="POST" action="/general_information" novalidate>
+        <form id="registrationForm" novalidate>
             <h2>Общие сведения</h2>
 
             <div class="form-group">
-                <input type="text" id="comandName" name="comandName" value="{{ info.comandName if info else '' }}" placeholder="Введите название команды...">
-                <span id="comandNameError" class="error-message"></span>
+                <input type="text" id="team_name" name="team_name" placeholder="Введите название команды...">
+                <span id="team_nameError" class="error-message"></span>
             </div>
             <div class="form-group">
-                <input type="text" id="schoolName" name="schoolName" value="{{ info.schoolName if info else '' }}" placeholder="Введите название школы...">
-                <span id="schoolNameError" class="error-message"></span>
+                <input type="text" id="school" name="school" placeholder="Введите название школы...">
+                <span id="schoolError" class="error-message"></span>
             </div>
             <div class="form-group">
-                <input type="text" id="cityName" name="cityName" value="{{ info.cityName if info else '' }}" placeholder="Введите город...">
-                <span id="cityNameError" class="error-message"></span>
+                <input type="text" id="city" name="city" placeholder="Введите город...">
+                <span id="cityError" class="error-message"></span>
             </div>
 
             <button type="submit">Далее</button>
         </form>
     </div>
 
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
     <script>
-        document.getElementById('registrationForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Отключаем стандартное поведение формы
-
-            // Очистка предыдущих сообщений об ошибках
-            const errorMessages = document.querySelectorAll('.error-message');
-            errorMessages.forEach(error => error.textContent = '');
-
-            let valid = true;
-
-            // Универсальная функция валидации полей
-            function validateField(id, errorId, validationFn) {
-                const value = document.getElementById(id).value.trim();
-                const errorMessage = validationFn(value);
-                if (errorMessage) {
-                    document.getElementById(errorId).textContent = errorMessage;
-                    valid = false;
-                }
-            }
-
-            // Функция валидации
-            const isNotEmpty = value => (value.length === 0 ? 'Поле обязательно к заполнению' : '');
-
-            // Проверка значений полей
-            validateField('comandName', 'comandNameError', isNotEmpty);
-            validateField('schoolName', 'schoolNameError', isNotEmpty);
-            validateField('cityName', 'cityNameError', isNotEmpty);
-
-            // Если все поля валидны, форма отправляется на сервер
-            if (valid) {
-                const formData = new FormData(this);
-
-                fetch(this.action, {
-                    method: this.method,
-                    body: formData,
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Если сервер успешно обработал запрос, перенаправьте на новую страницу
-                        window.location.href = 'mentor.html'; // Переход на страницу /mentor
-                    } else {
-                        // Обработка ошибок сервера, если нужно
-                        console.error('Ошибка в обработке формы', response);
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка сети', error);
-                });
-
-                // Отменим стандартное поведение отправки формы
-                event.preventDefault();
-            } else {
-                event.preventDefault(); // Не отправлять форму, если есть ошибки
-            }
+        bindRegForm({
+            formId: "registrationForm",
+            endpoint: "/api/reg/team",
+            next: "mentor.html",
+            fill: (team) => {
+                document.getElementById("team_name").value = team.team_name || "";
+                document.getElementById("school").value = team.school || "";
+                document.getElementById("city").value = team.city || "";
+            },
+            fields: [
+                { id: "team_name", fns: [Validators.notEmpty] },
+                { id: "school", fns: [Validators.notEmpty] },
+                { id: "city", fns: [Validators.notEmpty] },
+            ],
         });
-
     </script>
 </body>
 
