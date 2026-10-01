@@ -7,19 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <link rel="stylesheet" href="../static/font/stylesheet.css">
-    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="../static/css/styles.css?v=3">
     <style>
-        .registration-form { padding-top: 80px; }
+        /* Логотип (.corner-image) лежит абсолютно поверх шапки, поэтому контент опускаем ниже него.
+           Карточек может быть больше, чем вмещает экран: прокручиваем только #content,
+           тогда кнопки внизу всегда остаются видимыми и страница не «уезжает» целиком. */
+        .registration-form {
+            height: calc(100vh - 20px);
+            padding: 165px 30px 20px;
+        }
+        .corner-image { width: 150px; top: -10px; right: -20px; }
+        #content { flex: 1 1 auto; overflow-y: auto; }
         .card {
-            margin: 14px 0;
-            padding: 12px;
+            margin: 0 0 10px;
+            padding: 10px 12px;
             border-radius: 10px;
             background: #ffffff;
-            font-size: 15px;
-            line-height: 1.5;
+            font-size: 14px;
+            line-height: 1.45;
+            color: #33323d;
         }
-        .card-title { margin-bottom: 6px; font-weight: 600; }
-        .muted { color: #7a7d9c; font-size: 13px; }
+        .card-title { margin-bottom: 4px; font-size: 15px; font-weight: 600; }
+        .muted { color: #7a7d9c; font-size: 12px; }
+        button { font-size: 18px; padding: 9px 24px; }
     </style>
 
     <title>Инфо о команде</title>
