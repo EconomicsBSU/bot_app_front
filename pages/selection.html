@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css">
     <style>
-        /* Четыре кнопки + крестик внизу: приподнимаем контент, чтобы кнопка не перекрывалась крестиком */
-        .registration-form { padding-top: 170px; }
+        /* Пять кнопок + крестик внизу: приподнимаем контент, чтобы кнопка не перекрывалась крестиком */
+        .registration-form { padding-top: 110px; }
     </style>
 
     <title>Меню</title>
@@ -20,11 +20,12 @@
     <div class="registration-form">
         <img src="../static/image/logo.png" class="corner-image">
         <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
-        <a href="privacy_policy.html">
+        <a href="privacy_policy.html" id="reg-link">
             <button type="button">Регистрация</button>
         </a>
         <button type="button" id="team-info-button">Инфо о команде</button>
-        <button type="button" id="faq-button">FAQ</button>
+        <button type="button" id="faq-button">Помощь</button>
+        <button type="button" id="support-button">Поддержка</button>
         <a href="admin.html" id="admin-link" style="display: none;">
             <button type="button">Админ-панель</button>
         </a>
@@ -41,15 +42,27 @@
                 if (data.is_admin) {
                     document.getElementById("admin-link").style.display = "";
                 }
+                if (data.unread_answers) {
+                    document.getElementById("support-button").textContent =
+                        "Поддержка (" + data.unread_answers + ")";
+                }
+                // При закрытом приёме заявок новые команды не заводим: показываем страницу с текстом о закрытии.
+                if (!data.reg_open && !data.has_team) {
+                    document.getElementById("reg-link").href = "registration_closed.html";
+                }
             })
             .catch(() => {});
 
         document.getElementById("team-info-button").addEventListener("click", () => {
-            window.location.href = "final_check.html";
+            window.location.href = "team_info.html";
         });
 
         document.getElementById("faq-button").addEventListener("click", () => {
-            alert("В случае возникновения вопросов воспользуйтесь командой /help в чате с ботом и задайте свой вопрос.");
+            window.location.href = "help.html";
+        });
+
+        document.getElementById("support-button").addEventListener("click", () => {
+            window.location.href = "support.html";
         });
     </script>
 </body>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <style>
+        .registration-form { padding-top: 90px; }
+        textarea {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 110px;
+            padding: 12px;
+            border: 1px solid #c9cbee;
+            border-radius: 10px;
+            font-family: 'Inter';
+            font-size: 15px;
+            resize: vertical;
+        }
+        .question {
+            margin: 14px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+        .question-text { font-size: 15px; }
+        .question-date { margin-top: 6px; font-size: 12px; color: #7a7d9c; }
+        .question-answer {
+            margin-top: 10px;
+            padding: 10px;
+            border-left: 3px solid #6c7bff;
+            background: #f2f3ff;
+            font-size: 14px;
+        }
+        .question-waiting { margin-top: 10px; font-size: 13px; color: #7a7d9c; }
+        .error-message { display: block; margin-top: 6px; font-size: 12px; color: #d33; }
+    </style>
+
+    <title>Поддержка</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="../static/image/logo.png" class="corner-image">
+        <h2>Поддержка</h2>
+        <h6>Напишите ваш вопрос — организаторы ответят здесь и продублируют ответ в чат с ботом.</h6>
+
+        <textarea id="text" maxlength="2000" placeholder="Введите ваш вопрос..."></textarea>
+        <span id="textError" class="error-message"></span>
+        <button type="button" id="send-button">Отправить</button>
+
+        <div id="questions"></div>
+
+        <a href="selection.html">
+            <button type="button">Назад</button>
+        </a>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        const sendButton = document.getElementById("send-button");
+        const questionsEl = document.getElementById("questions");
+
+        function render(questions) {
+            if (!questions.length) {
+                questionsEl.innerHTML = "";
+                return;
+            }
+            questionsEl.innerHTML = questions.map((item) => {
+                const date = item.created_at ? new Date(item.created_at).toLocaleString("ru-RU") : "";
+                const answer = item.answer
+                    ? '<div class="question-answer">' + escHtml(item.answer) + "</div>"
+                    : '<div class="question-waiting">Ожидайте ответа</div>';
+                return '<div class="question">'
+                    + '<div class="question-text">' + escHtml(item.text) + "</div>"
+                    + '<div class="question-date">' + escHtml(date) + "</div>"
+                    + answer
+                    + "</div>";
+            }).join("");
+        }
+
+        function load() {
+            // GET помечает ответы прочитанными, поэтому счётчик на кнопке меню гаснет.
+            return API.get("/api/support/questions")
+                .then((data) => render(data.questions || []))
+                .catch(() => {});
+        }
+
+        sendButton.addEventListener("click", async () => {
+            const text = document.getElementById("text").value.trim();
+            clearErrors();
+            if (!text) {
+                setFieldError("text", "Введите ваш вопрос");
+                return;
+            }
+            sendButton.disabled = true;
+            try {
+                await API.post("/api/support/questions", { text });
+                document.getElementById("text").value = "";
+                await load();
+            } catch (error) {
+                handleApiError(error);
+            }
+            sendButton.disabled = false;
+        });
+
+        load();
+    </script>
+</body>
+
+</html>

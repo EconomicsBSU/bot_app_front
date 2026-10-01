@@ -23,6 +23,10 @@
             <button type="button">Команды</button>
         </a>
         <button type="button" id="export-button">Экспорт в Excel</button>
+        <button type="button" id="reg-toggle" disabled>Приём заявок…</button>
+        <a href="admin_support.html" id="support-link">
+            <button type="button">Поддержка</button>
+        </a>
         <a href="admin_admins.html" id="admins-link">
             <button type="button">Администраторы</button>
         </a>
@@ -34,18 +38,45 @@
     <script src="../static/js/config.js"></script>
     <script src="../static/js/api.js"></script>
     <script>
+        const regToggle = document.getElementById("reg-toggle");
+        let regOpen = null;
+
+        function showRegFlag(value) {
+            regOpen = value;
+            regToggle.disabled = false;
+            regToggle.textContent = value
+                ? "Приём заявок: открыт — закрыть"
+                : "Приём заявок: закрыт — открыть";
+        }
+
         API.get("/api/reg/state")
             .then((data) => {
                 if (!data.is_admin) {
                     window.location.replace("selection.html");
                     return;
                 }
+                showRegFlag(data.reg_open);
                 // Список администраторов доступен только владельцу панели.
                 if (!data.is_owner) {
                     document.getElementById("admins-link").style.display = "none";
                 }
+                const link = document.getElementById("support-link");
+                link.querySelector("button").textContent = data.open_support
+                    ? `Поддержка (${data.open_support})`
+                    : "Поддержка";
             })
             .catch(() => {});
+
+        regToggle.addEventListener("click", async () => {
+            regToggle.disabled = true;
+            try {
+                const data = await API.post("/api/admin/reg", { open: !regOpen });
+                showRegFlag(data.reg_open);
+            } catch (error) {
+                regToggle.disabled = false;
+                handleApiError(error);
+            }
+        });
 
         document.getElementById("export-button").addEventListener("click", async () => {
             const button = document.getElementById("export-button");

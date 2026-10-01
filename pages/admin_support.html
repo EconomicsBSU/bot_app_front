@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/admin.css">
+
+    <title>Поддержка</title>
+</head>
+
+<body class="admin-body">
+    <div class="admin-page">
+        <a class="back-link" href="admin.html">&larr; Назад</a>
+        <h2 class="admin-title">Вопросы организаторам</h2>
+
+        <div class="filter-row">
+            <button type="button" class="filter-button active" data-status="open">Без ответа</button>
+            <button type="button" class="filter-button" data-status="answered">Отвечены</button>
+            <button type="button" class="filter-button" data-status="all">Все</button>
+        </div>
+
+        <div id="questions"></div>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        const questionsEl = document.getElementById("questions");
+        let status = "open";
+
+        function card(item) {
+            const date = item.created_at ? new Date(item.created_at).toLocaleString("ru-RU") : "";
+            const who = [item.team_name, item.username ? "@" + item.username : String(item.tg_id)]
+                .filter(Boolean).join(" · ");
+            const answer = item.answer
+                ? '<div class="support-answer">Ответ: ' + escHtml(item.answer) + "</div>"
+                : answerForm(item.question_id);
+            return '<div class="card support-card">'
+                + '<div class="support-meta">' + escHtml(who) + " · " + escHtml(date) + "</div>"
+                + '<div class="support-question">' + escHtml(item.text) + "</div>"
+                + answer
+                + "</div>";
+        }
+
+        function answerForm(questionId) {
+            return '<textarea class="answer-input" data-id="' + escHtml(questionId)
+                + '" maxlength="2000" placeholder="Текст ответа..."></textarea>'
+                + '<button type="button" class="send-answer" data-id="' + escHtml(questionId)
+                + '">Отправить</button>';
+        }
+
+        function bindAnswers() {
+            questionsEl.querySelectorAll(".send-answer").forEach((button) => {
+                button.addEventListener("click", async () => {
+                    const id = button.dataset.id;
+                    const input = questionsEl.querySelector('.answer-input[data-id="' + id + '"]');
+                    const answer = input.value.trim();
+                    if (!answer) {
+                        input.focus();
+                        return;
+                    }
+                    button.disabled = true;
+                    try {
+                        await API.post("/api/admin/support/" + encodeURIComponent(id), { answer });
+                        await load();
+                    } catch (error) {
+                        button.disabled = false;
+                        handleApiError(error);
+                    }
+                });
+            });
+        }
+
+        function load() {
+            questionsEl.innerHTML = '<div class="empty-note">Загрузка...</div>';
+            return API.get("/api/admin/support?status=" + encodeURIComponent(status))
+                .then((data) => {
+                    const items = data.questions || [];
+                    questionsEl.innerHTML = items.length
+                        ? items.map(card).join("")
+                        : '<div class="empty-note">Вопросов нет</div>';
+                    bindAnswers();
+                })
+                .catch((error) => {
+                    if (error.status === 403) {
+                        window.location.replace("selection.html");
+                        return;
+                    }
+                    questionsEl.innerHTML = '<div class="empty-note">' + escHtml(error.message) + "</div>";
+                });
+        }
+
+        document.querySelectorAll(".filter-button").forEach((button) => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".filter-button").forEach((el) => el.classList.remove("active"));
+                button.classList.add("active");
+                status = button.dataset.status;
+                load();
+            });
+        });
+
+        load();
+    </script>
+</body>
+
+</html>

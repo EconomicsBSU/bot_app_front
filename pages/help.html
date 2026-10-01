@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+
+    <title>Помощь</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="../static/image/logo.png" class="corner-image">
+        <h2>Помощь</h2>
+        <h6>В случае возникновения вопросов напишите нам в разделе «Поддержка»: организаторы ответят там же
+            и продублируют ответ в чат с ботом.
+            <br><br>Ниже вы можете найти Памятку участника и Инструкцию по регистрации на портале.
+            <br><br>Чтобы продолжить регистрацию, вернитесь в меню и нажмите кнопку «Регистрация».
+        </h6>
+        <button type="button" id="pamyatka-button">Памятка участника</button>
+        <button type="button" id="instr-button">Инструкция по регистрации</button>
+        <a href="support.html">
+            <button type="button">Задать вопрос</button>
+        </a>
+        <a href="selection.html">
+            <button type="button">Назад</button>
+        </a>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        // Документы открываем во внешнем браузере Telegram: внутри WebApp PDF не отображается.
+        const docsBase = window.location.origin + window.location.pathname.replace(/\/pages\/[^/]*$/, "");
+
+        function openDoc(filename) {
+            const url = docsBase + "/static/docs/" + filename;
+            const app = window.Telegram && window.Telegram.WebApp;
+            if (app && app.openLink) {
+                app.openLink(url);
+            } else {
+                window.open(url, "_blank");
+            }
+        }
+
+        document.getElementById("pamyatka-button").addEventListener("click", () => openDoc("pamyatka.pdf"));
+        document.getElementById("instr-button").addEventListener("click", () => openDoc("instrukciya.pdf"));
+    </script>
+</body>
+
+</html>

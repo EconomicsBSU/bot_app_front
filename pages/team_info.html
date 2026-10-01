@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <style>
+        .registration-form { padding-top: 80px; }
+        .card {
+            margin: 14px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: #ffffff;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .card-title { margin-bottom: 6px; font-weight: 600; }
+        .muted { color: #7a7d9c; font-size: 13px; }
+    </style>
+
+    <title>Инфо о команде</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="../static/image/logo.png" class="corner-image">
+        <h2>Инфо о команде</h2>
+        <div id="content"><div class="card muted">Загрузка...</div></div>
+
+        <button type="button" id="edit-button" style="display: none;">Изменить данные</button>
+        <a href="help.html">
+            <button type="button">Помощь</button>
+        </a>
+        <a href="selection.html">
+            <button type="button">Назад</button>
+        </a>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script>
+        const content = document.getElementById("content");
+        const editButton = document.getElementById("edit-button");
+
+        function person(label, member) {
+            if (!member || !member.full_name) return "";
+            const grade = member.grade ? ", класс " + escHtml(member.grade) : "";
+            const post = member.post ? ", " + escHtml(member.post) : "";
+            return "<div>" + escHtml(label) + ": " + escHtml(member.full_name) + grade + post + "</div>"
+                + '<div class="muted">' + escHtml(member.phone_number || "") + " · " + escHtml(member.email || "") + "</div>";
+        }
+
+        function score(value) {
+            return value === null || value === undefined ? "—" : escHtml(value);
+        }
+
+        API.get("/api/reg/state")
+            .then((data) => {
+                const team = data.team;
+                if (!team || !team.team_name) {
+                    content.innerHTML = '<div class="card">Команда ещё не заполнена.</div>';
+                    return;
+                }
+                const parts = team.participants || [];
+                content.innerHTML =
+                    '<div class="card">'
+                    + '<div class="card-title">' + escHtml(team.team_name) + "</div>"
+                    + '<div class="muted">ID команды: ' + escHtml(team.team_id) + "</div>"
+                    + "<div>" + escHtml(team.city) + ", " + escHtml(team.school) + "</div>"
+                    + "</div>"
+                    + '<div class="card">'
+                    + '<div class="card-title">Состав</div>'
+                    + person("Наставник", team.mentor)
+                    + person("Капитан", team.captain)
+                    + parts.map((member, index) => person("Участник " + (index + 1), member)).join("")
+                    + "</div>"
+                    + '<div class="card">'
+                    + '<div class="card-title">Баллы</div>'
+                    + "<div>Тест (средний): " + score(team.scores.av_test_score) + "</div>"
+                    + "<div>Эссе: " + score(team.scores.essay_score) + "</div>"
+                    + "<div>Итог: " + score(team.scores.total_score) + "</div>"
+                    + '<div class="muted">' + (team.finished ? "Заявка подана" : "Заявка ещё не подана")
+                    + (team.reg_date ? " · " + escHtml(team.reg_date) : "") + "</div>"
+                    + "</div>";
+                editButton.style.display = "";
+            })
+            .catch((error) => {
+                content.innerHTML = '<div class="card">Не удалось загрузить данные.</div>';
+            });
+
+        editButton.addEventListener("click", () => {
+            window.location.href = "final_check.html";
+        });
+    </script>
+</body>
+
+</html>

@@ -25,9 +25,14 @@
     <script src="../static/js/config.js"></script>
     <script src="../static/js/api.js"></script>
     <script>
-        // Если регистрация уже начата — сразу переходим к заполнению
+        // Регистрация закрыта администратором — дальше не пускаем.
+        // Если регистрация уже начата — сразу переходим к заполнению.
         API.get("/api/reg/state")
             .then((data) => {
+                if (data.reg_open === false) {
+                    window.location.replace("registration_closed.html");
+                    return;
+                }
                 if (data.has_team) {
                     window.location.replace("general_information.html");
                 }
