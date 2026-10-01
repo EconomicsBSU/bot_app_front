@@ -51,8 +51,8 @@ a {
 
 
 body {
-    height: 100vh; /* Устанавливаем высоту на 100% высоты окна */
-    overflow: hidden; /* Убираем скроллинг */
+    min-height: 100vh; /* Устанавливаем высоту на 100% высоты окна */
+    overflow-y: auto; /* На длинных экранах (напр. «Инфо о команде») контент не должен обрезаться */
     display: flex; 
     justify-content: center; /* Центрируем по горизонтали */
     align-items: center; /* Центрируем по вертикали */
@@ -69,7 +69,7 @@ body {
     box-sizing: border-box; 
     width: 100%;
     max-width: 400px;
-    height: 600px; 
+    min-height: 600px; 
     padding: 230px 50px;
     position: relative; /* Позволяет элементам внутри использовать абсолютные позиции */
 }
