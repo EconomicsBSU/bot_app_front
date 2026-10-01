@@ -7,39 +7,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <link rel="stylesheet" href="../static/font/stylesheet.css">
-    <link rel="stylesheet" href="../static/css/styles.css?v=3">
+    <link rel="stylesheet" href="../static/css/style.css">
     <style>
-        /* Логотип (.corner-image) лежит абсолютно поверх шапки, поэтому контент опускаем ниже него.
-           Карточек может быть больше, чем вмещает экран: прокручиваем только #content,
-           тогда кнопки внизу всегда остаются видимыми и страница не «уезжает» целиком. */
-        .registration-form {
-            height: calc(100vh - 20px);
-            padding: 165px 30px 20px;
-        }
-        .corner-image { width: 150px; top: -10px; right: -20px; }
-        #content { flex: 1 1 auto; overflow-y: auto; }
-        .card {
-            margin: 0 0 10px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: #ffffff;
+        .registration-form { padding: 30px 24px 20px; }
+        .registration-form h2 { margin-bottom: 14px; font-size: 24px; }
+        .section { margin-bottom: 22px; }
+        .field {
+            margin-bottom: 8px;
+            padding: 9px 14px;
+            background-color: #ffffff;
+            border: 2px solid #9e9ba7;
+            border-radius: 15px;
+            color: #444444;
             font-size: 14px;
-            line-height: 1.45;
-            color: #33323d;
+            line-height: 1.4;
+            text-align: left;
         }
-        .card-title { margin-bottom: 4px; font-size: 15px; font-weight: 600; }
-        .muted { color: #7a7d9c; font-size: 12px; }
-        button { font-size: 18px; padding: 9px 24px; }
+        .field-label { color: #9e9ba7; font-size: 12px; }
+        .field-row { display: flex; justify-content: space-between; gap: 10px; }
+        .field-row span:last-child { font-weight: 600; }
+        .muted { color: #9e9ba7; font-size: 12px; }
+        button { font-size: 18px; padding: 8px 28px; }
     </style>
 
     <title>Инфо о команде</title>
 </head>
 
 <body>
-    <div class="registration-form">
-        <img src="../static/image/logo.png" class="corner-image">
-        <h2>Инфо о команде</h2>
-        <div id="content"><div class="card muted">Загрузка...</div></div>
+    <div class="registration-form check">
+        <div id="content"><div class="field muted">Загрузка...</div></div>
 
         <button type="button" id="edit-button" style="display: none;">Изменить данные</button>
         <a href="help.html">
@@ -56,50 +52,65 @@
         const content = document.getElementById("content");
         const editButton = document.getElementById("edit-button");
 
+        function section(title, html) {
+            return '<div class="section"><h2>' + escHtml(title) + "</h2>" + html + "</div>";
+        }
+
+        function field(label, value) {
+            return '<div class="field"><div class="field-label">' + escHtml(label) + "</div>"
+                + escHtml(value) + "</div>";
+        }
+
+        function row(label, value) {
+            return '<div class="field field-row"><span>' + escHtml(label) + "</span><span>" + escHtml(value) + "</span></div>";
+        }
+
         function person(label, member) {
             if (!member || !member.full_name) return "";
-            const grade = member.grade ? ", класс " + escHtml(member.grade) : "";
-            const post = member.post ? ", " + escHtml(member.post) : "";
-            return "<div>" + escHtml(label) + ": " + escHtml(member.full_name) + grade + post + "</div>"
-                + '<div class="muted">' + escHtml(member.phone_number || "") + " · " + escHtml(member.email || "") + "</div>";
+            const details = [member.post, member.grade ? "класс " + member.grade : ""].filter(Boolean).join(", ");
+            const contacts = [member.phone_number, member.email].filter(Boolean).join(" · ");
+            return '<div class="field"><div class="field-label">' + escHtml(label) + "</div>"
+                + escHtml(member.full_name)
+                + (details ? '<div class="muted">' + escHtml(details) + "</div>" : "")
+                + (contacts ? '<div class="muted">' + escHtml(contacts) + "</div>" : "")
+                + "</div>";
         }
 
         function score(value) {
-            return value === null || value === undefined ? "—" : escHtml(value);
+            return value === null || value === undefined ? "—" : String(value);
         }
 
         API.get("/api/reg/state")
             .then((data) => {
                 const team = data.team;
                 if (!team || !team.team_name) {
-                    content.innerHTML = '<div class="card">Команда ещё не заполнена.</div>';
+                    content.innerHTML = '<div class="field">Команда ещё не заполнена.</div>';
                     return;
                 }
                 const parts = team.participants || [];
+                const s = team.scores || {};
                 content.innerHTML =
-                    '<div class="card">'
-                    + '<div class="card-title">' + escHtml(team.team_name) + "</div>"
-                    + '<div class="muted">ID команды: ' + escHtml(team.team_id) + "</div>"
-                    + "<div>" + escHtml(team.city) + ", " + escHtml(team.school) + "</div>"
-                    + "</div>"
-                    + '<div class="card">'
-                    + '<div class="card-title">Состав</div>'
-                    + person("Наставник", team.mentor)
-                    + person("Капитан", team.captain)
-                    + parts.map((member, index) => person("Участник " + (index + 1), member)).join("")
-                    + "</div>"
-                    + '<div class="card">'
-                    + '<div class="card-title">Баллы</div>'
-                    + "<div>Тест (средний): " + score(team.scores.av_test_score) + "</div>"
-                    + "<div>Эссе: " + score(team.scores.essay_score) + "</div>"
-                    + "<div>Итог: " + score(team.scores.total_score) + "</div>"
-                    + '<div class="muted">' + (team.finished ? "Заявка подана" : "Заявка ещё не подана")
-                    + (team.reg_date ? " · " + escHtml(team.reg_date) : "") + "</div>"
-                    + "</div>";
+                    section("Команда",
+                        field("Название", team.team_name)
+                        + row("ID команды", team.team_id)
+                        + field("Город и школа", team.city + ", " + team.school)
+                        + '<div class="muted">' + (team.finished ? "Заявка подана" : "Заявка ещё не подана")
+                        + (team.reg_date ? " · " + team.reg_date : "") + "</div>"
+                    )
+                    + section("Состав",
+                        person("Наставник", team.mentor)
+                        + person("Капитан", team.captain)
+                        + parts.map((member, index) => person("Участник " + (index + 1), member)).join("")
+                    )
+                    + section("Баллы",
+                        row("Тест (средний)", score(s.av_test_score))
+                        + row("Эссе", score(s.essay_score))
+                        + row("Итог", score(s.total_score))
+                    );
                 editButton.style.display = "";
             })
-            .catch((error) => {
-                content.innerHTML = '<div class="card">Не удалось загрузить данные.</div>';
+            .catch(() => {
+                content.innerHTML = '<div class="field">Не удалось загрузить данные.</div>';
             });
 
         editButton.addEventListener("click", () => {
