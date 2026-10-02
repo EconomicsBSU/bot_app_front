@@ -9,8 +9,21 @@
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
     <style>
-        /* Пять кнопок + крестик внизу: приподнимаем контент, чтобы кнопка не перекрывалась крестиком */
-        .registration-form { padding-top: 110px; }
+        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        body { display: block; }
+        .registration-form {
+            height: auto; min-height: 100vh; margin: 0 auto;
+            padding: 24px 22px 96px;
+        }
+        .corner-image { top: 8px; right: 4px; width: 140px; }
+        h2 { margin-top: 96px; margin-bottom: 22px; }
+        /* Кнопки в отдельном блоке: скрытая «Админ-панель» не оставляет пустого места — остальные центруются. */
+        .menu-buttons {
+            display: flex; flex-direction: column; justify-content: center;
+            gap: 12px; flex: 1 1 auto;
+        }
+        .menu-buttons a { display: block; }
+        .menu-buttons button { width: 100%; max-width: 320px; margin: 0 auto; padding: 10px 16px; font-size: 18px; }
     </style>
 
     <title>Меню</title>
@@ -20,15 +33,17 @@
     <div class="registration-form">
         <img src="../static/image/logo.png" class="corner-image">
         <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
-        <a href="privacy_policy.html" id="reg-link">
-            <button type="button">Регистрация</button>
-        </a>
-        <button type="button" id="team-info-button">Инфо о команде</button>
-        <button type="button" id="faq-button">Помощь</button>
-        <button type="button" id="support-button">Поддержка</button>
-        <a href="admin.html" id="admin-link" style="display: none;">
-            <button type="button">Админ-панель</button>
-        </a>
+        <div class="menu-buttons">
+            <a href="privacy_policy.html" id="reg-link">
+                <button type="button">Регистрация</button>
+            </a>
+            <button type="button" id="team-info-button">Инфо о команде</button>
+            <button type="button" id="faq-button">Помощь</button>
+            <button type="button" id="support-button">Поддержка</button>
+            <a href="admin.html" id="admin-link" style="display: none;">
+                <button type="button">Админ-панель</button>
+            </a>
+        </div>
         <a href="../index.html">
             <img src="../static/image/cross.png" class="bottom-icon-cross" alt="Закрыть">
         </a>

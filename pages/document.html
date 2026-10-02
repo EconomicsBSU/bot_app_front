@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/styles.css?v=3">
+    <style>
+        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        body { display: block; }
+        .registration-form {
+            height: auto; min-height: 100vh; margin: 0 auto;
+            padding: 24px 12px 32px; justify-content: flex-start;
+        }
+        .corner-image { top: 8px; right: 4px; width: 140px; }
+        h2 { margin-top: 96px; margin-bottom: 8px; }
+        .doc-status { margin-bottom: 16px; font-size: 14px; line-height: 1.5; opacity: 0.85; }
+        .doc-pages { width: 100%; max-width: 100%; margin: 0 auto; }
+        /* Слот держит пропорции страницы до растеризации: высота списка известна сразу, скролл не прыгает. */
+        .doc-slot {
+            position: relative; width: 100%; margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.12); border-radius: 6px;
+        }
+        .doc-slot[data-state="rendered"] { background: #ffffff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
+        .doc-page { display: block; width: 100%; height: auto; border-radius: 6px; }
+        button { width: 100%; max-width: 320px; margin: 18px auto 0; padding: 10px 16px; font-size: 17px; }
+
+        /* Ноутбук/десктоп: колонка во всю ширину окна, иначе A4 в 400 px читается нестерпимо мелко. */
+        @media (min-width: 700px) {
+            .registration-form { max-width: 1040px; padding: 24px 28px 40px; }
+            .doc-slot { margin: 0 auto 14px; max-width: 940px; }
+            button { margin-top: 24px; }
+        }
+    </style>
+
+    <title>Документ</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <img src="../static/image/logo.png" class="corner-image">
+        <h2 id="doc-title">Документ</h2>
+        <div class="doc-status" id="doc-status">Загружаем документ…</div>
+        <div class="doc-pages" id="doc-pages"></div>
+        <a href="help.html">
+            <button type="button">Назад</button>
+        </a>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js"></script>
+    <script type="module">
+        const TITLES = {
+            pamyatka: "Памятка участника",
+            instrukciya: "Инструкция по регистрации",
+        };
+        // Одна страница не должна весить больше ~10 Мп (40 МБ RGBA): иначе 15-страничная инструкция
+        // роняет WebView на слабых телефонах. До этого лимита растер всегда 2× к CSS-ширине.
+        const MAX_PAGE_PIXELS = 10_000_000;
+        const VIEWPORTS_AHEAD = 1.5;
+
+        const statusEl = document.getElementById("doc-status");
+        const pagesEl = document.getElementById("doc-pages");
+        const slug = new URLSearchParams(window.location.search).get("doc") || "";
+
+        function setStatus(text) {
+            statusEl.textContent = text;
+        }
+
+        async function main() {
+            document.getElementById("doc-title").textContent = TITLES[slug] || "Документ";
+            if (!TITLES[slug]) {
+                setStatus("Неизвестный документ. Вернитесь в раздел «Помощь».");
+                return;
+            }
+            let doc;
+            try {
+                const blob = await API.blob(`/api/docs/${slug}`);
+                const buffer = await blob.arrayBuffer();
+                const pdfjs = await import("../static/js/pdfjs/pdf.min.mjs");
+                pdfjs.GlobalWorkerOptions.workerSrc = new URL("../static/js/pdfjs/pdf.worker.min.mjs", import.meta.url).href;
+                doc = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
+            } catch (error) {
+                setStatus("Не удалось открыть документ: " + ((error && error.message) || "ошибка сервера"));
+                return;
+            }
+
+            // Telegram Desktop часто рисует при devicePixelRatio 1 — берём минимум 2×, чтобы текст был гладким.
+            const quality = Math.max(window.devicePixelRatio || 1, 2);
+            const slots = [];
+            for (let number = 1; number <= doc.numPages; number++) {
+                const page = await doc.getPage(number);
+                const base = page.getViewport({ scale: 1 });
+                const slot = document.createElement("div");
+                slot.className = "doc-slot";
+                slot.style.aspectRatio = `${base.width} / ${base.height}`;
+                pagesEl.appendChild(slot);
+                slots.push({ slot, page, base, state: "" });
+            }
+            setStatus(`Страниц в документе: ${doc.numPages}`);
+
+            async function render(item, number) {
+                if (item.state) return;
+                item.state = "loading";
+                const cssWidth = item.slot.clientWidth || pagesEl.clientWidth || 360;
+                let scale = (cssWidth * quality) / item.base.width;
+                scale = Math.min(scale, Math.sqrt(MAX_PAGE_PIXELS / (item.base.width * item.base.height)));
+                const viewport = item.page.getViewport({ scale });
+                const canvas = document.createElement("canvas");
+                canvas.className = "doc-page";
+                canvas.width = Math.floor(viewport.width);
+                canvas.height = Math.floor(viewport.height);
+                item.slot.appendChild(canvas);
+                try {
+                    await item.page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+                    item.canvas = canvas;
+                    item.state = "rendered";
+                    item.slot.dataset.state = "rendered";
+                } catch (error) {
+                    item.state = "";
+                    console.error("render failed", number, error);
+                }
+            }
+
+            // Дальние страницы освобождаем: при 2× растере на десктопе каждая стоит десятки мегабайт.
+            function release(item) {
+                if (item.state !== "rendered") return;
+                item.canvas.remove();
+                item.canvas = null;
+                item.state = "";
+                delete item.slot.dataset.state;
+            }
+
+            function freeFar() {
+                const limit = window.innerHeight * VIEWPORTS_AHEAD;
+                for (const item of slots) {
+                    const box = item.slot.getBoundingClientRect();
+                    if (box.bottom < -limit || box.top > window.innerHeight + limit) release(item);
+                }
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                for (const entry of entries) {
+                    const number = Number(entry.target.dataset.number);
+                    const item = slots[number - 1];
+                    if (!item) continue;
+                    if (entry.isIntersecting) render(item, number);
+                }
+                freeFar();
+            }, { rootMargin: `${Math.round(window.innerHeight * VIEWPORTS_AHEAD)}px 0px` });
+
+            slots.forEach((item, index) => {
+                item.slot.dataset.number = String(index + 1);
+                observer.observe(item.slot);
+            });
+            window.addEventListener("resize", () => {
+                // Ширина колонки поменялась — старые растры не соответствуют ей, перерисовываем.
+                slots.forEach(release);
+                observer.disconnect();
+                slots.forEach((item) => observer.observe(item.slot));
+            });
+        }
+
+        main();
+    </script>
+</body>
+
+</html>

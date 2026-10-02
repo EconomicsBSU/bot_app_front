@@ -248,7 +248,7 @@
             const fields = [
                 { id: "team_name", fns: [Validators.notEmpty] },
                 { id: "school", fns: [Validators.notEmpty] },
-                { id: "city", fns: [Validators.notEmpty] },
+                { id: "city", fns: [Validators.city] },
                 { id: "mentor_name", fns: [Validators.notEmpty] },
                 { id: "mentor_post", fns: [Validators.notEmpty] },
                 { id: "mentor_email", fns: [Validators.email] },

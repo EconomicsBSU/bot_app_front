@@ -80,6 +80,21 @@
             if (!response.ok) return null;
             return URL.createObjectURL(await response.blob());
         },
+        // Файл с сервера (PDF памятки) как Blob: ссылка получается вида blob:, адрес документа не светится.
+        async blob(path) {
+            const response = await fetch(baseUrl() + path, { headers: initHeaders() });
+            if (!response.ok) {
+                let message = "Не удалось загрузить файл (" + response.status + ")";
+                try {
+                    const data = await response.json();
+                    if (data && data.error) message = data.error;
+                } catch (e) { /* не JSON */ }
+                const error = new Error(message);
+                error.status = response.status;
+                throw error;
+            }
+            return response.blob();
+        },
         async download(path, filename) {
             const response = await fetch(baseUrl() + path, { headers: initHeaders() });
             if (!response.ok) throw new Error("Не удалось скачать файл");
@@ -97,19 +112,28 @@
     // ---------- Валидация (те же правила, что на сервере) ----------
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const PHONE_RE = /^\+?\d{10,15}$/;
+    const PHONE_RE = /^\+?\d{7,15}$/;
+    // Пробелы, скобки и дефисы не считаются: валидируем только цифры, как на сервере.
+    const normalizePhone = (v) => v.trim().replace(/[\s\-().]/g, "");
 
     window.Validators = {
         notEmpty: (v) => (v.trim().length === 0 ? "Поле обязательно к заполнению" : ""),
+        city: (v) => {
+            v = v.trim();
+            if (!v.length) return "Поле обязательно к заполнению";
+            if (v.length > 60) return "Слишком длинное название города";
+            if (!/\p{L}/u.test(v)) return "Введите название города, а не только цифры";
+            return "";
+        },
         email: (v) => {
             v = v.trim();
             if (!v.length) return "Поле обязательно к заполнению";
             return EMAIL_RE.test(v) ? "" : "Введите корректный e-mail";
         },
         phone: (v) => {
-            v = v.trim();
+            v = normalizePhone(v);
             if (!v.length) return "Поле обязательно к заполнению";
-            return PHONE_RE.test(v) ? "" : "Введите корректный номер телефона";
+            return PHONE_RE.test(v) ? "" : "Введите номер телефона: 7-15 цифр, при необходимости с кодом страны (+995...)";
         },
         grade: (v) => {
             v = v.trim();

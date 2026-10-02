@@ -49,7 +49,7 @@
             fields: [
                 { id: "team_name", fns: [Validators.notEmpty] },
                 { id: "school", fns: [Validators.notEmpty] },
-                { id: "city", fns: [Validators.notEmpty] },
+                { id: "city", fns: [Validators.city] },
             ],
         });
     </script>

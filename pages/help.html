@@ -8,6 +8,19 @@
 
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
+    <style>
+        /* В styles.css body зафиксирован на 100vh с overflow:hidden — на маленьких экранах кнопки не влезают. */
+        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        body { display: block; }
+        .registration-form {
+            height: auto; min-height: 100vh; margin: 0 auto;
+            padding: 24px 22px 32px; justify-content: flex-start;
+        }
+        .corner-image { top: 8px; right: 4px; width: 140px; }
+        h2 { margin-top: 96px; margin-bottom: 12px; }
+        h6 { margin-bottom: 22px; font-size: 14px; line-height: 1.5; }
+        button { width: 100%; max-width: 320px; margin-bottom: 12px; padding: 10px 16px; font-size: 17px; }
+    </style>
 
     <title>Помощь</title>
 </head>
@@ -17,7 +30,7 @@
         <img src="../static/image/logo.png" class="corner-image">
         <h2>Помощь</h2>
         <h6>В случае возникновения вопросов напишите нам в разделе «Поддержка»: организаторы ответят там же
-            и продублируют ответ в чат с ботом.
+            и продублируют ответ в чат с ботом. Тот же вопрос можно задать прямо в чате — командой /help.
             <br><br>Ниже вы можете найти Памятку участника и Инструкцию по регистрации на портале.
             <br><br>Чтобы продолжить регистрацию, вернитесь в меню и нажмите кнопку «Регистрация».
         </h6>
@@ -34,21 +47,14 @@
     <script src="../static/js/config.js"></script>
     <script src="../static/js/api.js"></script>
     <script>
-        // Документы открываем во внешнем браузере Telegram: внутри WebApp PDF не отображается.
-        const docsBase = window.location.origin + window.location.pathname.replace(/\/pages\/[^/]*$/, "");
-
-        function openDoc(filename) {
-            const url = docsBase + "/static/docs/" + filename;
-            const app = window.Telegram && window.Telegram.WebApp;
-            if (app && app.openLink) {
-                app.openLink(url);
-            } else {
-                window.open(url, "_blank");
-            }
+        // Сам PDF приходит с сервера по initData, а внутри приложения показывается через pdf.js —
+        // наружной ссылки на файл нет, в адресной строке остаётся только адрес страницы.
+        function openDoc(slug) {
+            window.location.href = "document.html?doc=" + encodeURIComponent(slug);
         }
 
-        document.getElementById("pamyatka-button").addEventListener("click", () => openDoc("pamyatka.pdf"));
-        document.getElementById("instr-button").addEventListener("click", () => openDoc("instrukciya.pdf"));
+        document.getElementById("pamyatka-button").addEventListener("click", () => openDoc("pamyatka"));
+        document.getElementById("instr-button").addEventListener("click", () => openDoc("instrukciya"));
     </script>
 </body>
 

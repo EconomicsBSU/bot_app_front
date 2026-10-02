@@ -9,7 +9,17 @@
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
     <style>
-        .registration-form { padding-top: 90px; }
+        /* В styles.css body зафиксирован на 100vh с overflow:hidden — список вопросов не скроллится. */
+        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        body { display: block; }
+        .registration-form {
+            height: auto; min-height: 100vh; margin: 0 auto;
+            padding: 24px 22px 32px; justify-content: flex-start;
+        }
+        .corner-image { top: 8px; right: 4px; width: 140px; }
+        h2 { margin-top: 96px; margin-bottom: 12px; }
+        h6 { margin-bottom: 18px; font-size: 14px; line-height: 1.5; }
+        button { width: 100%; max-width: 320px; margin-bottom: 12px; padding: 10px 16px; font-size: 17px; }
         textarea {
             box-sizing: border-box;
             width: 100%;
@@ -22,22 +32,28 @@
             resize: vertical;
         }
         .question {
+            box-sizing: border-box;
+            width: 100%;
             margin: 14px 0;
             padding: 12px;
             border-radius: 10px;
             background: #ffffff;
+            text-align: left;
         }
-        .question-text { font-size: 15px; }
+        /* Белые карточки на фиолетовом фоне: текст нужно явно перекрасить. */
+        .question, .question-text { color: #33344a; }
         .question-date { margin-top: 6px; font-size: 12px; color: #7a7d9c; }
         .question-answer {
             margin-top: 10px;
             padding: 10px;
             border-left: 3px solid #6c7bff;
             background: #f2f3ff;
+            border-radius: 0 8px 8px 0;
             font-size: 14px;
+            color: #2b2d45;
         }
         .question-waiting { margin-top: 10px; font-size: 13px; color: #7a7d9c; }
-        .error-message { display: block; margin-top: 6px; font-size: 12px; color: #d33; }
+        .error-message { display: block; margin-top: 6px; font-size: 12px; color: #ffd5d5; }
     </style>
 
     <title>Поддержка</title>
@@ -47,7 +63,8 @@
     <div class="registration-form">
         <img src="../static/image/logo.png" class="corner-image">
         <h2>Поддержка</h2>
-        <h6>Напишите ваш вопрос — организаторы ответят здесь и продублируют ответ в чат с ботом.</h6>
+        <h6>Напишите ваш вопрос — организаторы ответят здесь и продублируют ответ в чат с ботом.
+            Тот же вопрос можно задать прямо в чате — командой /help.</h6>
 
         <textarea id="text" maxlength="2000" placeholder="Введите ваш вопрос..."></textarea>
         <span id="textError" class="error-message"></span>
