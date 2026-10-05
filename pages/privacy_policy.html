@@ -29,6 +29,11 @@
         // Если регистрация уже начата — сразу переходим к заполнению.
         API.get("/api/reg/state")
             .then((data) => {
+                if (data.member_role === "member") {
+                    // Присоединившийся по ID участник заявку не заполняет — ему доступен только просмотр.
+                    window.location.replace("team_info.html");
+                    return;
+                }
                 if (data.reg_open === false) {
                     window.location.replace("registration_closed.html");
                     return;

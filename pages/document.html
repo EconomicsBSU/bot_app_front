@@ -9,14 +9,24 @@
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
     <style>
-        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        /* Скроллбар у WebView отнимает ~15px ширины, и логотип у правого края уезжает влево
+           относительно страниц без прокрутки. Полосу не показываем (как в светлых страницах). */
+        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
         body { display: block; }
         .registration-form {
             height: auto; min-height: 100vh; margin: 0 auto;
             padding: 24px 12px 32px; justify-content: flex-start;
         }
-        .corner-image { top: 8px; right: 4px; width: 140px; }
-        h2 { margin-top: 96px; margin-bottom: 8px; }
+        /* Логотип — часть базового фона: тот же размер и то же положение в углу, что на index.html.
+           Смещение считаем от высоты экрана: на этой странице форма занимает всю высоту,
+           тогда как в базе блок .registration-form центрируется по вертикали. */
+        .corner-image { top: calc(50vh - 440px); right: -100px; width: 350px; }
+        @media (min-width: 481px) {
+            .corner-image { top: calc(50vh - 330px); right: -40px; width: 220px; }
+        }
+        /* Заголовок начинаем сразу под логотипом — как в базе. */
+        h2 { margin-top: calc(50vh - 94px); margin-bottom: 8px; }
         .doc-status { margin-bottom: 16px; font-size: 14px; line-height: 1.5; opacity: 0.85; }
         .doc-pages { width: 100%; max-width: 100%; margin: 0 auto; }
         /* Слот держит пропорции страницы до растеризации: высота списка известна сразу, скролл не прыгает. */

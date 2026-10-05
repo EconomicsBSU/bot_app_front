@@ -18,7 +18,7 @@
         <a class="back-link" href="admin.html">&larr; Назад</a>
         <h2 class="admin-title">Команды</h2>
 
-        <input type="text" id="search" class="search-input" placeholder="Поиск: название, город, школа, ФИО...">
+        <input type="text" id="search" class="search-input" placeholder="Поиск: название, город, школа, ФИО, @username...">
         <div id="teams"></div>
     </div>
 
@@ -43,7 +43,8 @@
                     '<div class="team-name">' + escHtml(team.team_name) + "</div>" +
                     (sub ? '<div class="team-sub">' + escHtml(sub) + "</div>" : "") +
                     (team.captain_name ? '<div class="team-sub">Капитан: ' + escHtml(team.captain_name) + "</div>" : "") +
-                    '<div class="team-sub">Участников: ' + escHtml(team.members) + "</div>" +
+                    '<div class="team-sub">Участников: ' + escHtml(team.members) +
+                    (team.accounts ? " · в боте: " + escHtml(team.accounts) : "") + "</div>" +
                     badge + "</button>";
             }).join("");
 

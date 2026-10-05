@@ -168,6 +168,7 @@
 
         API.get("/api/reg/data")
             .then((data) => {
+                if (!requireEditable(data)) return;
                 const team = data.team || {};
                 fill(team);
 

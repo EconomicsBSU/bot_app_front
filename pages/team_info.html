@@ -76,6 +76,17 @@
                 + "</div>";
         }
 
+        // Аккаунты, привязанные к команде по ID (кто они в составе — не определяем).
+        function joinedSection(joined) {
+            if (!joined || !joined.length) return "";
+            return section("Присоединились к боту",
+                joined.map((item) =>
+                    '<div class="field"><div class="field-label">' + escHtml(item.full_name) + "</div>"
+                    + (item.username ? "@" + escHtml(item.username) : "без username в Telegram")
+                    + (item.joined_at ? '<div class="muted">' + escHtml(item.joined_at.slice(0, 10)) + "</div>" : "")
+                    + "</div>").join(""));
+        }
+
         function score(value) {
             return value === null || value === undefined ? "—" : String(value);
         }
@@ -102,15 +113,32 @@
                         + person("Капитан", team.captain)
                         + parts.map((member, index) => person("Участник " + (index + 1), member)).join("")
                     )
+                    + joinedSection(team.joined)
                     + section("Баллы",
                         row("Тест (средний)", score(s.av_test_score))
                         + row("Эссе", score(s.essay_score))
                         + row("Итог", score(s.total_score))
                     );
-                editButton.style.display = "";
+                if (data.can_edit) {
+                    editButton.style.display = "";
+                } else {
+                    content.insertAdjacentHTML(
+                        "beforeend",
+                        '<div class="muted">Изменять данные команды может только капитан.</div>'
+                    );
+                }
             })
-            .catch(() => {
-                content.innerHTML = '<div class="field">Не удалось загрузить данные.</div>';
+            .catch((error) => {
+                // Без причины на экране любая сетевая проблема выглядит как «нет данных».
+                let message = "Не удалось загрузить данные";
+                if (error.status === 401) {
+                    // Участникам про контуры говорить не нужно: как обновить сессию — этого достаточно.
+                    message += ": сессия мини-приложения не подтверждена. Закройте приложение и откройте его заново из чата бота.";
+                } else if (error.message) {
+                    message += ": " + error.message + " (" + (error.status || "нет связи с сервером") + ")";
+                }
+                content.innerHTML = '<div class="field">' + escHtml(message) + "</div>" +
+                    '<button type="button" onclick="location.reload()">Повторить</button>';
             });
 
         editButton.addEventListener("click", () => {

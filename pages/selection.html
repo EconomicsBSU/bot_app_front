@@ -9,18 +9,26 @@
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
     <style>
-        html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        /* Меню не скроллится: и крестик, и кнопки всегда на своих местах. */
+        html, body { height: 100%; overflow: hidden; }
         body { display: block; }
         .registration-form {
-            height: auto; min-height: 100vh; margin: 0 auto;
-            padding: 24px 22px 96px;
+            height: 100vh; margin: 0 auto; justify-content: flex-end;
+            padding: 0 22px 104px; /* снизу оставляем место под крестик (bottom: 60px + его высота) */
         }
-        .corner-image { top: 8px; right: 4px; width: 140px; }
-        h2 { margin-top: 96px; margin-bottom: 22px; }
-        /* Кнопки в отдельном блоке: скрытая «Админ-панель» не оставляет пустого места — остальные центруются. */
+        /* Логотип — часть базового фона: тот же размер и то же положение в углу, что на index.html.
+           Смещение считаем от высоты экрана: на этой странице форма занимает всю высоту,
+           тогда как в базе блок .registration-form центрируется по вертикали. */
+        .corner-image { top: calc(50vh - 440px); right: -100px; width: 350px; }
+        @media (min-width: 481px) {
+            .corner-image { top: calc(50vh - 330px); right: -40px; width: 220px; }
+        }
+        /* Заголовок с кнопками прижат к низу: при нехватке места текст уходит вверх под логотип —
+           логотип фоновый, поэтому текст и кнопки рисуем поверх него. */
+        h2 { margin-bottom: 22px; }
+        h2, .menu-buttons { position: relative; z-index: 1; }
         .menu-buttons {
-            display: flex; flex-direction: column; justify-content: center;
-            gap: 12px; flex: 1 1 auto;
+            display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto;
         }
         .menu-buttons a { display: block; }
         .menu-buttons button { width: 100%; max-width: 320px; margin: 0 auto; padding: 10px 16px; font-size: 18px; }
@@ -61,8 +69,11 @@
                     document.getElementById("support-button").textContent =
                         "Поддержка (" + data.unread_answers + ")";
                 }
-                // При закрытом приёме заявок новые команды не заводим: показываем страницу с текстом о закрытии.
-                if (!data.reg_open && !data.has_team) {
+                // Участник, присоединившийся по ID команды, заявку не заполняет — регистрация только у капитана.
+                if (data.member_role === "member") {
+                    document.getElementById("reg-link").style.display = "none";
+                } else if (!data.reg_open && !data.has_team) {
+                    // При закрытом приёме заявок новые команды не заводим: показываем страницу с текстом о закрытии.
                     document.getElementById("reg-link").href = "registration_closed.html";
                 }
             })

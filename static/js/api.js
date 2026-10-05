@@ -243,6 +243,15 @@
         return data;
     }
 
+    // Присоединившийся по ID команды участник видит заявку, но не редактирует её.
+    window.requireEditable = (data) => {
+        if (data.can_edit === false) {
+            window.location.replace("team_info.html");
+            return false;
+        }
+        return true;
+    };
+
     // Стандартная страница шага регистрации: подгрузка данных + отправка формы.
     window.bindRegForm = (options) => {
         const form = document.getElementById(options.formId);
@@ -250,6 +259,7 @@
 
         API.get("/api/reg/data")
             .then((data) => {
+                if (!requireEditable(data)) return;
                 if (options.fill) options.fill(data.team || {});
             })
             .catch((error) => {

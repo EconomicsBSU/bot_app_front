@@ -11,6 +11,41 @@
     <link rel="stylesheet" href="../static/css/admin.css">
 
     <title>Карточка команды</title>
+
+    <style>
+        .edit-toggle {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #4c00ce;
+            background: #ffffff;
+            border: 2px solid #4c00ce;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            font-weight: bold;
+            color: #444444;
+            margin: 18px 0 6px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 12px;
+            color: #9e9ba7;
+            margin-bottom: 4px;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #9e9ba7;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 
 <body class="admin-body">
@@ -43,8 +78,149 @@
             return '<div class="card"><div class="section-title">' + escHtml(title) + "</div>" + rows + "</div>";
         }
 
+        // Аккаунты, привязанные к команде: кто заполнял заявку и кто присоединился по ID.
+        function accountsCard(accounts) {
+            if (!accounts || !accounts.length) {
+                return '<div class="card"><div class="section-title">Аккаунты Telegram</div>' +
+                    '<div class="empty-note">К боту никто не привязан</div></div>';
+            }
+            let html = '<div class="card"><div class="section-title">Аккаунты Telegram</div>';
+            accounts.forEach((account) => {
+                const role = account.member_role === "captain" ? "заполнял заявку" : "присоединился";
+                html += '<div class="info-row"><span class="info-label">' +
+                    escHtml(account.full_name || "без имени") + " (" + escHtml(role) + ")" +
+                    '</span><span class="info-value">' +
+                    escHtml(account.username ? "@" + account.username : String(account.tg_id)) +
+                    "</span></div>";
+                if (account.joined_at) {
+                    html += '<div class="info-row"><span class="info-label"></span><span class="info-value">' +
+                        escHtml(account.joined_at.slice(0, 10)) + "</span></div>";
+                }
+            });
+            return html + "</div>";
+        }
+
         function scoreValue(value) {
             return value === null || value === undefined ? "" : String(value);
+        }
+
+        // ---------- Форма правки заявки (те же поля, что у капитана) ----------
+
+        function field(type, id, label, value) {
+            return '<div class="form-group">' +
+                '<label class="field-label" for="' + id + '">' + escHtml(label) + "</label>" +
+                '<input type="' + type + '" id="' + id + '" name="' + id +
+                '" placeholder="' + escHtml(label) + '" value="' + escHtml(value === null || value === undefined ? "" : value) + '">' +
+                '<span id="' + id + 'Error" class="error-message"></span>' +
+                "</div>";
+        }
+
+        function personFields(prefix, title, who, person, spec) {
+            let html = '<div class="form-subtitle">' + escHtml(title) + "</div>";
+            html += field("text", prefix + "_name", "ФИО " + who, person.full_name);
+            if (spec.post) html += field("text", prefix + "_post", "Должность " + who, person.post);
+            if (spec.grade) html += field("number", prefix + "_grade", "Класс " + who, person.grade);
+            html += field("email", prefix + "_email", "E-mail " + who, person.email);
+            html += field("tel", prefix + "_phone", "Телефон " + who, person.phone_number);
+            return html;
+        }
+
+        function editCard(team) {
+            let html = '<div class="card"><div class="section-title">Данные заявки</div>' +
+                '<button type="button" id="toggleEdit" class="edit-toggle">Редактировать данные</button>' +
+                '<form id="editForm" novalidate hidden>' +
+                '<div class="form-subtitle">Команда</div>' +
+                field("text", "team_name", "Название команды", team.team_name) +
+                field("text", "school", "Школа", team.school) +
+                field("text", "city", "Город", team.city);
+
+            html += personFields("mentor", "Ментор", "ментора", team.mentor || {}, { post: true });
+            html += personFields("captain", "Капитан", "капитана", team.captain || {}, { grade: true });
+
+            const participants = team.participants || [];
+            for (let i = 1; i <= 3; i++) {
+                html += personFields("participant_" + i, "Участник " + i,
+                    "участника " + i, participants[i - 1] || {}, { grade: true });
+            }
+            html += '<div class="hint">Третий участник необязательный — очистите его поля, чтобы убрать из состава.</div>';
+
+            html += '<span id="editError" class="error-message"></span>' +
+                '<button type="submit">Сохранить данные</button>' +
+                "</form></div>";
+            return html;
+        }
+
+        function editValues(form) {
+            const data = {};
+            new FormData(form).forEach((value, key) => {
+                data[key] = value;
+            });
+            return data;
+        }
+
+        function validateEditForm() {
+            const fields = [
+                { id: "team_name", fns: [Validators.notEmpty] },
+                { id: "school", fns: [Validators.notEmpty] },
+                { id: "city", fns: [Validators.city] },
+                { id: "mentor_name", fns: [Validators.notEmpty] },
+                { id: "mentor_post", fns: [Validators.notEmpty] },
+                { id: "mentor_email", fns: [Validators.email] },
+                { id: "mentor_phone", fns: [Validators.phone] },
+                { id: "captain_name", fns: [Validators.notEmpty] },
+                { id: "captain_grade", fns: [Validators.grade] },
+                { id: "captain_email", fns: [Validators.email] },
+                { id: "captain_phone", fns: [Validators.phone] },
+                { id: "participant_1_name", fns: [Validators.notEmpty] },
+                { id: "participant_1_grade", fns: [Validators.grade] },
+                { id: "participant_1_email", fns: [Validators.email] },
+                { id: "participant_1_phone", fns: [Validators.phone] },
+                { id: "participant_2_name", fns: [Validators.notEmpty] },
+                { id: "participant_2_grade", fns: [Validators.grade] },
+                { id: "participant_2_email", fns: [Validators.email] },
+                { id: "participant_2_phone", fns: [Validators.phone] },
+            ];
+            const thirdFilled = ["name", "grade", "email", "phone"].some((suffix) => {
+                return document.getElementById("participant_3_" + suffix).value.trim().length > 0;
+            });
+            if (thirdFilled) {
+                fields.push(
+                    { id: "participant_3_name", fns: [Validators.notEmpty] },
+                    { id: "participant_3_grade", fns: [Validators.grade] },
+                    { id: "participant_3_email", fns: [Validators.email] },
+                    { id: "participant_3_phone", fns: [Validators.phone] },
+                );
+            }
+            return validateFields(fields);
+        }
+
+        function bindEditForm() {
+            const toggle = document.getElementById("toggleEdit");
+            const form = document.getElementById("editForm");
+            const errorEl = document.getElementById("editError");
+            toggle.addEventListener("click", () => {
+                form.hidden = !form.hidden;
+                toggle.textContent = form.hidden ? "Редактировать данные" : "Скрыть форму";
+            });
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                errorEl.textContent = "";
+                if (!validateEditForm()) return;
+                button.disabled = true;
+                try {
+                    await API.post("/api/admin/teams/" + teamId, editValues(form));
+                    window.location.reload();
+                } catch (error) {
+                    button.disabled = false;
+                    if (error.errors) {
+                        Object.keys(error.errors).forEach((name) => setFieldError(name, error.errors[name]));
+                    } else {
+                        errorEl.textContent = error.message;
+                    }
+                }
+            });
         }
 
         function renderTeam(team) {
@@ -67,11 +243,15 @@
                 html += memberCard("Участник " + (i + 1), participants[i] || null);
             }
 
+            html += accountsCard(team.accounts);
+
             html += '<div class="card"><div class="section-title">Фото команды</div>' +
                 (team.has_photo
                     ? '<img id="team-photo" src="" alt="Фото команды" style="max-width: 100%; border-radius: 10px;">'
                     : '<div class="empty-note">Фото не загружено</div>') +
                 "</div>";
+
+            html += editCard(team);
 
             html += '<div class="card"><div class="section-title">Оценки</div>' +
                 '<form id="scoresForm" novalidate>' +
@@ -83,6 +263,8 @@
                 "</form></div>";
 
             content.innerHTML = html;
+
+            bindEditForm();
 
             if (team.has_photo) {
                 API.photoUrl("/api/admin/teams/" + teamId + "/photo").then((url) => {

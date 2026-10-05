@@ -47,6 +47,7 @@
 
         API.get("/api/reg/data")
             .then((data) => {
+                if (!requireEditable(data)) return;
                 const team = data.team || {};
                 if (team.has_photo) {
                     hasExistingPhoto = true;

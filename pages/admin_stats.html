@@ -42,7 +42,8 @@
                     statCard(stats.in_progress, "В процессе") +
                     statCard(stats.captains, "Капитанов") +
                     statCard(stats.participants, "Участников") +
-                    statCard(stats.mentors, "Менторов");
+                    statCard(stats.mentors, "Менторов") +
+                    statCard(stats.joined, "Присоединились по ID");
 
                 const cities = stats.cities || [];
                 document.getElementById("cities").innerHTML = cities.length
