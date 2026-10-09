@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="../static/css/style.css">
     <link rel="stylesheet" href="../static/css/admin.css">
 
+    <style>
+        /* Отметка о файле, который организатор приложил к ответу в чате: стили только этой страницы. */
+        .support-file { margin-top: 6px; font-size: 13px; color: #5a5d78; }
+    </style>
+
     <title>Поддержка</title>
 </head>
 
@@ -38,7 +43,11 @@
             const who = [item.team_name, item.username ? "@" + item.username : String(item.tg_id)]
                 .filter(Boolean).join(" · ");
             const answer = item.answer
-                ? '<div class="support-answer">Ответ: ' + escHtml(item.answer) + "</div>"
+                ? '<div class="support-answer">Ответ: ' + escHtml(item.answer)
+                    + (item.attachment
+                        ? '<div class="support-file">📎 Файл в чате с ботом: ' + escHtml(item.attachment) + "</div>"
+                        : "")
+                    + "</div>"
                 : answerForm(item.question_id);
             return '<div class="card support-card">'
                 + '<div class="support-meta">' + escHtml(who) + " · " + escHtml(date) + "</div>"
