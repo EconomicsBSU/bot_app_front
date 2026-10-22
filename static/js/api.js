@@ -205,40 +205,65 @@
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#39;");
 
-    // Сжатие фото команды: не более 800x800, JPEG
+    // Фото команды отдаём в максимальном качестве, которое принимает сервер (5 МБ в api.py):
+    // файл до PHOTO_MAX_BYTES уходит оригинальным байтом — с исходным разрешением и без
+    // второго JPEG-перекодирования, которое и съедало качество. Больше лимита — снижаем
+    // размер/качество по лестнице, пока не влезет.
+    const PHOTO_MAX_BYTES = 4.5 * 1024 * 1024;
+    const PHOTO_SERVER_FORMATS = ["png", "jpg", "jpeg", "gif"];
+    // [длинная сторона, качество JPEG] — от максимального к приемлемому.
+    const PHOTO_RESCALE_STEPS = [[2600, 0.95], [2200, 0.92], [1800, 0.9], [1400, 0.85]];
+
+    function scaledCanvas(img, maxSide) {
+        const longSide = Math.max(img.width, img.height);
+        const ratio = longSide > maxSide ? maxSide / longSide : 1;
+        const width = Math.round(img.width * ratio);
+        const height = Math.round(img.height * ratio);
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        return canvas;
+    }
+
+    function encodeCanvas(canvas, type, quality) {
+        return new Promise((resolve) => {
+            canvas.toBlob((blob) => resolve(blob), type, quality);
+        });
+    }
+
+    function photoFile(blob, originalName, type) {
+        const base = originalName.replace(/\.[^.]+$/, "");
+        const name = (base || "photo") + (type === "image/png" ? ".png" : ".jpg");
+        return new File([blob], name, { type: type });
+    }
+
     window.compressImageFile = (file, callback) => {
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
+        if (file.size <= PHOTO_MAX_BYTES && PHOTO_SERVER_FORMATS.includes(ext)) {
+            callback(file);
+            return;
+        }
         const reader = new FileReader();
+        // Не удалось прочитать (например, HEIC, который WebView не декодирует) —
+        // отдаём как есть: сервер сам объяснит причину отказа.
+        reader.onerror = () => callback(file);
         reader.onload = (event) => {
             const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                const maxWidth = 800;
-                const maxHeight = 800;
-                let width = img.width;
-                let height = img.height;
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
+            img.onerror = () => callback(file);
+            img.onload = async () => {
+                // PNG жмём в PNG — через JPEG прозрачность становится чёрной.
+                const types = ext === "png" ? ["image/png", "image/jpeg"] : ["image/jpeg"];
+                for (const type of types) {
+                    for (const step of PHOTO_RESCALE_STEPS) {
+                        const blob = await encodeCanvas(scaledCanvas(img, step[0]), type, step[1]);
+                        if (blob && blob.size <= PHOTO_MAX_BYTES) {
+                            callback(photoFile(blob, file.name, type));
+                            return;
+                        }
                     }
                 }
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-                canvas.toBlob((blob) => {
-                    if (blob) {
-                        const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-                        callback(new File([blob], name, { type: "image/jpeg" }));
-                    } else {
-                        callback(file);
-                    }
-                }, "image/jpeg", 0.7);
+                callback(file);
             };
             img.src = event.target.result;
         };
