@@ -95,17 +95,27 @@
             }
             return response.blob();
         },
-        async download(path, filename) {
-            const response = await fetch(baseUrl() + path, { headers: initHeaders() });
-            if (!response.ok) throw new Error("Не удалось скачать файл");
-            const url = URL.createObjectURL(await response.blob());
+        // Файл отдаётся подписанной ссылкой. Сохранить её внутри WebView Telegram нельзя:
+        // Telegram Desktop получает ответ 200 и молча выбрасывает загрузку (видно по логу
+        // бэкенда), поэтому из мини-приложения ссылка уходит в системный браузер через openLink.
+        async download(kind) {
+            const data = await apiFetch(
+                "/api/admin/download-link?kind=" + encodeURIComponent(kind),
+                { headers: initHeaders() }
+            );
+            const url = baseUrl() + data.path;
+            const app = tgApp();
+            if (app && typeof app.openLink === "function") {
+                try {
+                    app.openLink(url);
+                    return;
+                } catch (e) { /* старый клиент: пробуем обычной ссылкой */ }
+            }
             const link = document.createElement("a");
             link.href = url;
-            link.download = filename;
             document.body.appendChild(link);
             link.click();
             link.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 60000);
         },
     };
 

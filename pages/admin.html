@@ -23,6 +23,7 @@
             <button type="button">Команды</button>
         </a>
         <button type="button" id="export-button">Экспорт в Excel</button>
+        <button type="button" id="photos-button">Фото команд архивом</button>
         <button type="button" id="reg-toggle" disabled>Приём заявок…</button>
         <a href="admin_support.html" id="support-link">
             <button type="button">Поддержка</button>
@@ -82,10 +83,23 @@
             const button = document.getElementById("export-button");
             button.disabled = true;
             try {
-                await API.download("/api/admin/export", "ФЦГ_команды.xlsx");
+                await API.download("excel");
             } catch (error) {
                 alert(error.message);
             }
+            button.disabled = false;
+        });
+
+        document.getElementById("photos-button").addEventListener("click", async () => {
+            const button = document.getElementById("photos-button");
+            button.disabled = true;
+            button.textContent = "Готовим архив…";
+            try {
+                await API.download("photos");
+            } catch (error) {
+                alert(error.message);
+            }
+            button.textContent = "Фото команд архивом";
             button.disabled = false;
         });
     </script>
