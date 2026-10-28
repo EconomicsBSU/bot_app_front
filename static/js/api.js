@@ -12,6 +12,30 @@
         tgApp().expand();
     }
 
+    // Бэкенд отвечает на проблемы с initData как {"error":"unauthorized","reason":"..."} —
+    // служебные коды участнику ничего не говорят, а «кнопка не работает» выглядит поломкой
+    // регистрации. Подсказываем, что сделать, тем более что данные заявки при этом не теряются.
+    const AUTH_HINTS = {
+        no_init_data:
+            "Приложение открылось без данных Telegram. Закройте его полностью и запустите заново " +
+            "кнопкой «Открыть мини-приложение» в чате с @economic_games_bot — данные команды сохранены.",
+        expired:
+            "Сессия Telegram устарела (прошли сутки). Закройте приложение и откройте его заново " +
+            "из чата с @economic_games_bot.",
+        no_bot_token: "Сервер не настроен: обратитесь к организаторам.",
+        bad_signature: "Не удалось проверить данные Telegram. Откройте приложение заново из чата с @economic_games_bot.",
+        no_hash: "Не удалось проверить данные Telegram. Откройте приложение заново из чата с @economic_games_bot.",
+    };
+
+    function apiError(data, status) {
+        const reason = data && data.reason;
+        const message = (reason && AUTH_HINTS[reason]) || (data && data.error) || "Ошибка сервера (" + status + ")";
+        const error = new Error(message);
+        error.status = status;
+        error.errors = data && data.errors ? data.errors : null;
+        return error;
+    }
+
     function baseUrl() {
         return window.API_BASE || "";
     }
@@ -50,10 +74,7 @@
             data = null;
         }
         if (!response.ok || !data || data.ok === false) {
-            const error = new Error((data && data.error) || "Ошибка сервера (" + response.status + ")");
-            error.status = response.status;
-            error.errors = data && data.errors ? data.errors : null;
-            throw error;
+            throw apiError(data, response.status);
         }
         return data;
     }
