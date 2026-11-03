@@ -11,6 +11,17 @@
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
 
     <title>Политика обработки персональных данных</title>
+
+    <style>
+        /* alert() в WebView Telegram не показывается, поэтому подсказка — текстом под кнопкой. */
+        .agree-error {
+            margin-top: 14px;
+            color: #b3261e;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,10 +32,11 @@
             class="link" target="_blank">Политикой обработки персональных данных БГУ</a>
         </h6>
         <button type="button" id="agree-button">Соглашаюсь</button>
+        <p id="agree-error" class="agree-error" hidden></p>
     </div>
 
     <script src="../static/js/config.js"></script>
-    <script src="../static/js/api.js?v=2"></script>
+    <script src="../static/js/api.js?v=3"></script>
     <script>
         // Регистрация закрыта администратором — дальше не пускаем.
         // Если регистрация уже начата — сразу переходим к заполнению.
@@ -47,13 +59,16 @@
 
         document.getElementById("agree-button").addEventListener("click", async () => {
             const button = document.getElementById("agree-button");
+            const box = document.getElementById("agree-error");
             button.disabled = true;
+            box.hidden = true;
             try {
                 await API.post("/api/reg/start", { type: "school" });
                 window.location.href = "general_information.html";
             } catch (error) {
                 button.disabled = false;
-                alert(error.message);
+                box.textContent = error.message;
+                box.hidden = false;
             }
         });
     </script>

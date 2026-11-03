@@ -14,6 +14,25 @@
     <style>
         /* Отметка о файле, который организатор приложил к ответу в чате: стили только этой страницы. */
         .support-file { margin-top: 6px; font-size: 13px; color: #5a5d78; }
+        /* Закрытие без ответа: вторичное действие, поэтому не фиолетовая плашка, а контур. */
+        .close-question {
+            width: 100%;
+            margin-top: 8px;
+            padding: 9px 10px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #5a5d78;
+            background: #ffffff;
+            border: 2px solid #e3e2ea;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .close-question:disabled { opacity: 0.6; }
+        .support-closed { margin-top: 10px; font-size: 14px; color: #7a7d9c; }
+        /* Кто из организаторов ответил/закрыл — видно прямо на карточке. */
+        .support-by { margin-top: 6px; font-size: 13px; color: #5a5d78; }
+        /* alert() в WebView Telegram не показывается — ошибка уходит текстом под списком. */
+        .page-error { margin-top: 14px; font-size: 13px; color: #b3261e; }
     </style>
 
     <title>Поддержка</title>
@@ -31,25 +50,42 @@
         </div>
 
         <div id="questions"></div>
+        <p id="page-error" class="page-error" hidden></p>
     </div>
 
     <script src="../static/js/config.js"></script>
-    <script src="../static/js/api.js?v=2"></script>
+    <script src="../static/js/api.js?v=3"></script>
     <script>
         const questionsEl = document.getElementById("questions");
+        const errorEl = document.getElementById("page-error");
         let status = "open";
 
+        function showError(message) {
+            errorEl.textContent = message || "Произошла ошибка";
+            errorEl.hidden = false;
+        }
+
         function card(item) {
-            const date = item.created_at ? new Date(item.created_at).toLocaleString("ru-RU") : "";
+            const date = stamp(item.created_at);
             const who = [item.team_name, item.username ? "@" + item.username : String(item.tg_id)]
                 .filter(Boolean).join(" · ");
-            const answer = item.answer
-                ? '<div class="support-answer">Ответ: ' + escHtml(item.answer)
+            let answer;
+            if (item.answer) {
+                answer = '<div class="support-answer">Ответ: ' + escHtml(item.answer)
                     + (item.attachment
                         ? '<div class="support-file">📎 Файл в чате с ботом: ' + escHtml(item.attachment) + "</div>"
                         : "")
+                    + by("Ответил", item.answered_by, item.answered_at)
+                    + "</div>";
+            } else if (item.closed_at) {
+                answer = '<div class="support-closed">Закрыт без ответа'
+                    + by("Закрыл", item.closed_by, item.closed_at)
                     + "</div>"
-                : answerForm(item.question_id);
+                    + '<button type="button" class="close-question" data-action="reopen" data-id="'
+                    + escHtml(item.question_id) + '">Вернуть в «Без ответа»</button>';
+            } else {
+                answer = answerForm(item.question_id);
+            }
             return '<div class="card support-card">'
                 + '<div class="support-meta">' + escHtml(who) + " · " + escHtml(date) + "</div>"
                 + '<div class="support-question">' + escHtml(item.text) + "</div>"
@@ -57,11 +93,25 @@
                 + "</div>";
         }
 
+        function stamp(iso) {
+            return iso ? new Date(iso).toLocaleString("ru-RU") : "";
+        }
+
+        // Имя организатора приходит с бэкенда; у старых записей его нет — тогда только дата.
+        function by(label, name, iso) {
+            const when = stamp(iso);
+            if (!name && !when) return "";
+            const text = [name ? label + ": " + name : label, when].filter(Boolean).join(" · ");
+            return '<div class="support-by">' + escHtml(text) + "</div>";
+        }
+
         function answerForm(questionId) {
             return '<textarea class="answer-input" data-id="' + escHtml(questionId)
                 + '" maxlength="2000" placeholder="Текст ответа..."></textarea>'
                 + '<button type="button" class="send-answer" data-id="' + escHtml(questionId)
-                + '">Отправить</button>';
+                + '">Отправить</button>'
+                + '<button type="button" class="close-question" data-action="close" data-id="'
+                + escHtml(questionId) + '">Закрыть без ответа</button>';
         }
 
         function bindAnswers() {
@@ -80,13 +130,28 @@
                         await load();
                     } catch (error) {
                         button.disabled = false;
-                        handleApiError(error);
+                        showError(error.message);
+                    }
+                });
+            });
+
+            questionsEl.querySelectorAll(".close-question").forEach((button) => {
+                button.addEventListener("click", async () => {
+                    button.disabled = true;
+                    try {
+                        await API.post("/api/admin/support/" + encodeURIComponent(button.dataset.id)
+                            + "/" + button.dataset.action);
+                        await load();
+                    } catch (error) {
+                        button.disabled = false;
+                        showError(error.message);
                     }
                 });
             });
         }
 
         function load() {
+            errorEl.hidden = true;
             questionsEl.innerHTML = '<div class="empty-note">Загрузка...</div>';
             return API.get("/api/admin/support?status=" + encodeURIComponent(status))
                 .then((data) => {

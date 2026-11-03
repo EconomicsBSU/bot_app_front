@@ -90,7 +90,7 @@
     </div>
 
     <script src="../static/js/config.js"></script>
-    <script src="../static/js/api.js?v=2"></script>
+    <script src="../static/js/api.js?v=3"></script>
     <script>
         const sendButton = document.getElementById("send-button");
         const questionsEl = document.getElementById("questions");
@@ -108,7 +108,9 @@
                     : "";
                 const answer = item.answer
                     ? '<div class="question-answer">' + escHtml(item.answer) + file + "</div>"
-                    : '<div class="question-waiting">Ожидайте ответа</div>';
+                    : item.closed
+                        ? '<div class="question-waiting">Вопрос закрыт</div>'
+                        : '<div class="question-waiting">Ожидайте ответа</div>';
                 return '<div class="question">'
                     + '<div class="question-text">' + escHtml(item.text) + "</div>"
                     + '<div class="question-date">' + escHtml(date) + "</div>"

@@ -40,12 +40,37 @@
         return window.API_BASE || "";
     }
 
+    // initData бывает пуст в SDK-объекте, когда telegram-web-app.js не успел/не смог
+    // загрузиться или страница открылась из сохранённого хэша (tg-params.js). Тогда строка
+    // всё равно есть в URL — читаем её сами, без URLSearchParams: он превращает '+' в пробел
+    // и ломает base64 полей query_id/hash.
+    function initDataFromHash() {
+        const sources = [location.hash.replace(/^#/, "")];
+        try {
+            sources.push(localStorage.getItem("fcg_tg_init_hash") || "");
+        } catch (e) { /* приватный режим */ }
+        for (const source of sources) {
+            for (const pair of source.split("&")) {
+                const eq = pair.indexOf("=");
+                if (eq < 0 || pair.slice(0, eq) !== "tgWebAppData") continue;
+                try {
+                    return decodeURIComponent(pair.slice(eq + 1));
+                } catch (e) { /* битое процентное кодирование */ }
+            }
+        }
+        return "";
+    }
+
     function initHeaders(extra) {
         const headers = Object.assign({}, extra || {});
         const app = tgApp();
-        if (app && app.initData) {
-            headers["X-Telegram-Init-Data"] = app.initData;
+        const initData = (app && app.initData) || initDataFromHash();
+        if (initData) {
+            headers["X-Telegram-Init-Data"] = initData;
         }
+        // Только для журнала отказов на бэкенде: откуда взялись данные Telegram.
+        // Значение «none» означает, что страница открыта вне мини-приложения.
+        headers["X-Tg-Diag"] = app && app.initData ? "sdk" : initData ? "hash" : "none";
         // Для локальной отладки вне Telegram: ?dev=<id пользователя>.
         // Сохраняем в sessionStorage, чтобы параметр не терялся при переходах между страницами.
         const devId = new URLSearchParams(window.location.search).get("dev");
