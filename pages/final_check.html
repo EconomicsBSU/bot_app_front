@@ -166,11 +166,17 @@
 
         let hasExistingPhoto = false;
         let selectedFile = null;
+        // Заявка уже подана — значит страница работает как редактор, а не как шаг регистрации.
+        let editMode = false;
 
         API.get("/api/reg/data")
             .then((data) => {
                 if (!requireEditable(data)) return;
                 const team = data.team || {};
+                editMode = !!team.finished;
+                if (editMode) {
+                    submitButton.textContent = "Сохранить изменения";
+                }
                 fill(team);
 
                 if (team.has_photo) {
@@ -296,7 +302,7 @@
             submitButton.disabled = true;
             try {
                 await API.upload("/api/reg/finish", formData);
-                window.location.href = "registration_end.html";
+                window.location.href = editMode ? "team_info.html" : "registration_end.html";
             } catch (error) {
                 submitButton.disabled = false;
                 handleApiError(error);
