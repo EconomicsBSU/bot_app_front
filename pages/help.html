@@ -31,6 +31,7 @@
         h2 { margin-top: calc(50vh - 94px); margin-bottom: 12px; }
         h6 { margin-bottom: 22px; font-size: 14px; line-height: 1.5; }
         button { width: 100%; max-width: 320px; margin-bottom: 12px; padding: 10px 16px; font-size: 17px; }
+        .docs-note { max-width: 320px; margin: 0 auto 12px; font-size: 14px; line-height: 1.5; text-align: center; }
     </style>
 
     <title>Помощь</title>
@@ -42,11 +43,13 @@
         <h2>Помощь</h2>
         <h6>В случае возникновения вопросов напишите нам в разделе «Поддержка»: организаторы ответят там же
             и продублируют ответ в чат с ботом. Тот же вопрос можно задать прямо в чате — командой /help.
-            <br><br>Ниже вы можете найти Памятку участника и Инструкцию по регистрации на портале.
+            <br><br><span id="docs-lead">Ниже вы можете найти Памятку участника и Инструкцию по регистрации на портале.</span>
             <br><br>Чтобы продолжить регистрацию, вернитесь в меню и нажмите кнопку «Регистрация».
         </h6>
-        <button type="button" id="pamyatka-button">Памятка участника</button>
-        <button type="button" id="instr-button">Инструкция по регистрации</button>
+        <div id="docs">
+            <button type="button" data-doc="pamyatka">Памятка участника</button>
+            <button type="button" data-doc="instrukciya">Инструкция по регистрации</button>
+        </div>
         <a href="support.html">
             <button type="button">Задать вопрос</button>
         </a>
@@ -64,8 +67,45 @@
             window.location.href = "document.html?doc=" + encodeURIComponent(slug);
         }
 
-        document.getElementById("pamyatka-button").addEventListener("click", () => openDoc("pamyatka"));
-        document.getElementById("instr-button").addEventListener("click", () => openDoc("instrukciya"));
+        // У каждого потока свои документы: какие доступны, говорит сервер.
+        // У студентов памятки нет — только инструкция по регистрации.
+        const DOC_TITLES = {
+            pamyatka: "Памятка участника",
+            instrukciya: "Инструкция по регистрации",
+            instrukciya_stud: "Инструкция по регистрации",
+        };
+
+        function bindDocs() {
+            document.querySelectorAll("#docs button").forEach((button) => {
+                button.addEventListener("click", () => openDoc(button.dataset.doc));
+            });
+        }
+
+        // До ответа сервера работают кнопки в разметке: они же остаются, если API недоступен.
+        bindDocs();
+
+        API.get("/api/reg/state")
+            .then((data) => {
+                const docs = data.docs || [];
+                // У студентов памятки нет: фраза над кнопками не должна её обещать.
+                if (docs.indexOf("pamyatka") === -1) {
+                    document.getElementById("docs-lead").textContent =
+                        "Ниже вы можете найти Инструкцию по регистрации на портале.";
+                }
+                if (!docs.length) {
+                    // Документов своего потока на сервере ещё нет — чужие не показываем.
+                    document.getElementById("docs").innerHTML =
+                        '<p class="docs-note">' + (data.track === "student"
+                            ? "Инструкция по регистрации появится здесь позже."
+                            : "Памятка и инструкция появятся здесь позже.") + "</p>";
+                    return;
+                }
+                document.getElementById("docs").innerHTML = docs.map((slug) =>
+                    '<button type="button" data-doc="' + escHtml(slug) + '">'
+                    + escHtml(DOC_TITLES[slug] || "Документ") + "</button>").join("");
+                bindDocs();
+            })
+            .catch(() => {});
     </script>
 </body>
 

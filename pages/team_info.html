@@ -52,6 +52,7 @@
     <script>
         const content = document.getElementById("content");
         const editButton = document.getElementById("edit-button");
+        let track = "school";
 
         function section(title, html) {
             return '<div class="section"><h2>' + escHtml(title) + "</h2>" + html + "</div>";
@@ -66,9 +67,12 @@
             return '<div class="field field-row"><span>' + escHtml(label) + "</span><span>" + escHtml(value) + "</span></div>";
         }
 
-        function person(label, member) {
+        function person(label, member, student) {
             if (!member || !member.full_name) return "";
-            const details = [member.post, member.grade ? "класс " + member.grade : ""].filter(Boolean).join(", ");
+            const study = student
+                ? [member.spec, member.faculty].filter(Boolean).join(", ")
+                : (member.grade ? "класс " + member.grade : "");
+            const details = [member.post, study].filter(Boolean).join(", ");
             const contacts = [member.phone_number, member.email].filter(Boolean).join(" · ");
             return '<div class="field"><div class="field-label">' + escHtml(label) + "</div>"
                 + escHtml(member.full_name)
@@ -101,25 +105,31 @@
                 }
                 const parts = team.participants || [];
                 const s = team.scores || {};
+                // У студентов вместо школы — вуз, и видно потребность в общежитии.
+                const student = team.track === "student";
+                track = team.track || "school";
                 content.innerHTML =
                     section("Команда",
                         field("Название", team.team_name)
                         + row("ID команды", team.team_id)
-                        + field("Город и школа", team.city + ", " + team.school)
+                        + field(student ? "Город и вуз" : "Город и школа",
+                            team.city + ", " + (student ? team.univ : team.school))
+                        + (student ? row("Потребность в общежитии", team.dormitory || "Нет") : "")
                         + '<div class="muted">' + (team.finished ? "Заявка подана" : "Заявка ещё не подана")
                         + (team.reg_date ? " · " + team.reg_date : "") + "</div>"
                     )
                     + section("Состав",
-                        person("Наставник", team.mentor)
-                        + person("Капитан", team.captain)
-                        + parts.map((member, index) => person("Участник " + (index + 1), member)).join("")
+                        person("Наставник", team.mentor, student)
+                        + person("Капитан", team.captain, student)
+                        + parts.map((member, index) => person("Участник " + (index + 1), member, student)).join("")
                     )
                     + joinedSection(team.joined)
-                    + section("Баллы",
+                    // Баллы бывают только у школьного конкурса.
+                    + (student ? "" : section("Баллы",
                         row("Тест (средний)", score(s.av_test_score))
                         + row("Эссе", score(s.essay_score))
                         + row("Итог", score(s.total_score))
-                    );
+                    ));
                 if (data.can_edit) {
                     editButton.style.display = "";
                 } else {
@@ -143,7 +153,7 @@
             });
 
         editButton.addEventListener("click", () => {
-            window.location.href = "final_check.html";
+            window.location.href = track === "student" ? "final_check_stud.html" : "final_check.html";
         });
     </script>
 </body>

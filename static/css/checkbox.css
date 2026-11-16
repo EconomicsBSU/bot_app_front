@@ -1,0 +1,75 @@
+/* Чекбокс «Потребность в общежитии» — только студенческий поток.
+   Разметка и вид перенесены из прежнего приложения (gen_inf_std.html). */
+
+.custom-checkbox {
+    display: flex;
+    position: relative;
+    align-items: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    height: 23px;
+    width: 23px;
+    border: 2px solid #9e9ba7;
+    border-radius: 5px;
+    background-color: white;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #4c00ce;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 50%;
+    top: 10px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-text {
+    margin-left: 40px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #444444;
+    cursor: default;
+}
+
+.custom-checkbox:not(.disabled) input:not(:checked):hover ~ .checkmark {
+    background-color: #e6e2f3;
+}
+
+.custom-checkbox.disabled {
+    cursor: default;
+}
+
+.custom-checkbox.disabled .checkmark {
+    border-color: #cccccc;
+    background-color: white;
+}
+
+.custom-checkbox.disabled .checkbox-text {
+    color: #444444;
+    cursor: default;
+}

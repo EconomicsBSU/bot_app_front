@@ -25,7 +25,8 @@
         </a>
         <button type="button" id="export-button">Экспорт в Excel</button>
         <button type="button" id="photos-button">Фото команд архивом</button>
-        <button type="button" id="reg-toggle" disabled>Приём заявок…</button>
+        <button type="button" id="reg-toggle-school" disabled>Приём заявок (школьники)…</button>
+        <button type="button" id="reg-toggle-student" disabled>Приём заявок (студенты)…</button>
         <a href="admin_support.html" id="support-link">
             <button type="button">Поддержка</button>
         </a>
@@ -40,15 +41,27 @@
     <script src="../static/js/config.js"></script>
     <script src="../static/js/api.js?v=3"></script>
     <script>
-        const regToggle = document.getElementById("reg-toggle");
-        let regOpen = null;
+        // Приём заявок у каждого потока свой: переключатели не зависят друг от друга.
+        const REG_TOGGLE = {
+            school: { id: "reg-toggle-school", label: "школьники" },
+            student: { id: "reg-toggle-student", label: "студенты" },
+        };
+        const regState = { school: null, student: null };
 
-        function showRegFlag(value) {
-            regOpen = value;
-            regToggle.disabled = false;
-            regToggle.textContent = value
-                ? "Приём заявок: открыт — закрыть"
-                : "Приём заявок: закрыт — открыть";
+        function renderRegToggle(track) {
+            const item = REG_TOGGLE[track];
+            const button = document.getElementById(item.id);
+            const open = regState[track];
+            button.disabled = open === null;
+            button.textContent = open === null
+                ? "Приём заявок (" + item.label + ")…"
+                : "Приём заявок (" + item.label + "): " + (open ? "открыт — закрыть" : "закрыт — открыть");
+        }
+
+        function showRegFlags(data) {
+            regState.school = data.reg_open_school;
+            regState.student = data.reg_open_student;
+            Object.keys(REG_TOGGLE).forEach(renderRegToggle);
         }
 
         API.get("/api/reg/state")
@@ -57,7 +70,7 @@
                     window.location.replace("selection.html");
                     return;
                 }
-                showRegFlag(data.reg_open);
+                showRegFlags(data);
                 // Список администраторов доступен только владельцу панели.
                 if (!data.is_owner) {
                     document.getElementById("admins-link").style.display = "none";
@@ -69,17 +82,20 @@
             })
             .catch(() => {});
 
-        regToggle.addEventListener("click", async () => {
-            regToggle.disabled = true;
-            try {
-                const data = await API.post("/api/admin/reg", { open: !regOpen });
-                showRegFlag(data.reg_open);
-            } catch (error) {
-                regToggle.disabled = false;
-                handleApiError(error);
-            }
+        Object.keys(REG_TOGGLE).forEach((track) => {
+            const button = document.getElementById(REG_TOGGLE[track].id);
+            button.addEventListener("click", async () => {
+                button.disabled = true;
+                try {
+                    showRegFlags(await API.post("/api/admin/reg", { track: track, open: !regState[track] }));
+                } catch (error) {
+                    handleApiError(error);
+                }
+                renderRegToggle(track);
+            });
         });
 
+        // Выгрузка общая: в файле потоки разложены по листам (Excel) и папкам (фото).
         document.getElementById("export-button").addEventListener("click", async () => {
             const button = document.getElementById("export-button");
             button.disabled = true;

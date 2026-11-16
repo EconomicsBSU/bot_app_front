@@ -9,6 +9,12 @@
 
     <link rel="stylesheet" href="static/font/stylesheet.css">
     <link rel="stylesheet" href="static/css/styles.css?v=3">
+    <style>
+        /* Название олимпиады теперь полное, поэтому заголовок мельче базового: иначе он вместе
+           с подписью наползает на кнопку меню (та стоит абсолютно внизу формы). */
+        h2 { font-size: 18px; line-height: 1.25; margin-bottom: 12px; }
+        .footer-text { margin-top: 90px; width: 100%; }
+    </style>
 
     <title>Главная</title>
 </head>
@@ -16,7 +22,7 @@
 <body>
     <div class="registration-form">
         <img src="static/image/logo.png" class="corner-image">
-        <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
+        <h2 id="welcome">Добро пожаловать на конкурс «Финансовая и цифровая грамотность поколения Z»!</h2>
         <div class="footer-text">
             <p>Выберите интересующий вас раздел, нажав на меню.</p>
         </div>
@@ -25,7 +31,21 @@
         </a>
     </div>
 
+    <script src="static/js/config.js"></script>
     <script src="static/js/api.js?v=3"></script>
+    <script>
+        // У каждого потока своё приветствие; пока выбор не сделан — показываем страницу выбора.
+        API.get("/api/reg/state")
+            .then((data) => {
+                if (!data.track) {
+                    window.location.replace("pages/track_choice.html");
+                    return;
+                }
+                const texts = window.TRACK_TEXTS;
+                document.getElementById("welcome").textContent = (texts[data.track] || texts.school).welcome;
+            })
+            .catch(() => {});
+    </script>
 </body>
 
 </html>

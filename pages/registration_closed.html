@@ -9,6 +9,17 @@
 
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/styles.css?v=3">
+    <style>
+        /* Ссылка смены олимпиады — как на странице согласия: под кнопками, тем же шрифтом. */
+        .track-switch {
+            display: block;
+            margin-top: 14px;
+            font-size: 14px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 
     <title>Регистрация завершена</title>
 </head>
@@ -16,7 +27,7 @@
 <body>
     <div class="registration-form">
         <img src="../static/image/logo.png" class="corner-image">
-        <h6>Добрый день! Регистрация на XI конкурс «Финансовая и цифровая грамотность поколения Z» завершена.
+        <h6 id="closed-text">Добрый день! Регистрация на XI конкурс «Финансовая и цифровая грамотность поколения Z» завершена.
             <br><br>В случае возникновения вопросов напишите нам в разделе «Поддержка».
         </h6>
         <a href="support.html">
@@ -25,10 +36,22 @@
         <a href="selection.html">
             <button type="button">Назад</button>
         </a>
+        <a href="track_choice.html" id="track-switch" class="track-switch link" hidden>Выбрать другую олимпиаду</a>
     </div>
 
     <script src="../static/js/config.js"></script>
     <script src="../static/js/api.js?v=3"></script>
+    <script>
+        // Текст о закрытии приёма у каждого потока свой (совпадает с ответом бэкенда).
+        const tail = "<br><br>В случае возникновения вопросов напишите нам в разделе «Поддержка».";
+        API.get("/api/reg/state").then((data) => {
+            const texts = window.TRACK_TEXTS;
+            document.getElementById("closed-text").innerHTML = (texts[data.track] || texts.school).closed + tail;
+            // Приём закрыт у выбранной олимпиады, а другой может быть открыт: пока заявки нет,
+            // человека не должно запереть на этом потоке.
+            document.getElementById("track-switch").hidden = !!data.has_team;
+        }).catch(() => { });
+    </script>
 </body>
 
 </html>

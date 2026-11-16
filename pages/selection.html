@@ -26,7 +26,7 @@
         }
         /* Заголовок с кнопками прижат к низу: при нехватке места текст уходит вверх под логотип —
            логотип фоновый, поэтому текст и кнопки рисуем поверх него. */
-        h2 { margin-bottom: 22px; }
+        h2 { font-size: 18px; line-height: 1.25; margin-bottom: 22px; }
         h2, .menu-buttons { position: relative; z-index: 1; }
         .menu-buttons {
             display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto;
@@ -41,7 +41,7 @@
 <body>
     <div class="registration-form">
         <img src="../static/image/logo.png" class="corner-image">
-        <h2>Добро пожаловать на Олимпиаду по финансовой и цифровой грамотности!</h2>
+        <h2 id="welcome">Добро пожаловать на конкурс «Финансовая и цифровая грамотность поколения Z»!</h2>
         <div class="menu-buttons">
             <a href="privacy_policy.html" id="reg-link">
                 <button type="button">Регистрация</button>
@@ -61,8 +61,15 @@
     <script src="../static/js/config.js"></script>
     <script src="../static/js/api.js?v=3"></script>
     <script>
+        // У каждого потока своё приветствие и свои страницы регистрации.
         API.get("/api/reg/state")
             .then((data) => {
+                if (!data.track) {
+                    window.location.replace("track_choice.html");
+                    return;
+                }
+                const texts = window.TRACK_TEXTS;
+                document.getElementById("welcome").textContent = (texts[data.track] || texts.school).welcome;
                 if (data.is_admin) {
                     document.getElementById("admin-link").style.display = "";
                 }
@@ -70,12 +77,13 @@
                     document.getElementById("support-button").textContent =
                         "Поддержка (" + data.unread_answers + ")";
                 }
+                const regLink = document.getElementById("reg-link");
                 // Участник, присоединившийся по ID команды, заявку не заполняет — регистрация только у капитана.
                 if (data.member_role === "member") {
-                    document.getElementById("reg-link").style.display = "none";
+                    regLink.style.display = "none";
                 } else if (!data.reg_open && !data.has_team) {
                     // При закрытом приёме заявок новые команды не заводим: показываем страницу с текстом о закрытии.
-                    document.getElementById("reg-link").href = "registration_closed.html";
+                    regLink.href = "registration_closed.html";
                 }
             })
             .catch(() => {});

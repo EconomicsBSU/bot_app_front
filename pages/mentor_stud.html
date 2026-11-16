@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="../static/js/tg-params.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <style>
+        /* Ментор у студентов необязателен: подсказка и вторая кнопка — только на этой странице. */
+        .mentor-hint {
+            margin: 0 0 14px;
+            color: #9e9ba7;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: left;
+        }
+        #skip-button { background-color: #ffffff; color: #4c00ce; border: 2px solid #4c00ce; }
+    </style>
+
+    <title>Ментор</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" novalidate>
+            <h2>Информация о менторе</h2>
+            <p class="mentor-hint">Необязательный шаг: оставьте поля пустыми или нажмите «Нет ментора».</p>
+
+            <div class="form-group">
+                <input type="text" id="full_name" name="full_name" placeholder="Введите ФИО ментора...">
+                <span id="full_nameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="post" name="post" placeholder="Введите должность ментора...">
+                <span id="postError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Введите e-mail ментора...">
+                <span id="emailError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" placeholder="Введите телефон ментора...">
+                <span id="phoneError" class="error-message"></span>
+            </div>
+
+            <button type="submit">Далее</button>
+            <button type="button" id="skip-button">Нет ментора</button>
+        </form>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js?v=3"></script>
+    <script>
+        const FIELDS = [
+            { id: "full_name", fns: [Validators.notEmpty] },
+            { id: "post", fns: [Validators.notEmpty] },
+            { id: "email", fns: [Validators.email] },
+            { id: "phone", fns: [Validators.phone] },
+        ];
+
+        function filled() {
+            return FIELDS.some((field) => document.getElementById(field.id).value.trim().length > 0);
+        }
+
+        API.get("/api/reg/data")
+            .then((data) => {
+                if (!requireEditable(data)) return;
+                const mentor = (data.team || {}).mentor || {};
+                document.getElementById("full_name").value = mentor.full_name || "";
+                document.getElementById("post").value = mentor.post || "";
+                document.getElementById("email").value = mentor.email || "";
+                document.getElementById("phone").value = mentor.phone_number || "";
+            })
+            .catch((error) => {
+                if (error.status === 409) {
+                    window.location.replace("privacy_policy.html");
+                    return;
+                }
+                alert("Не удалось загрузить данные: " + error.message);
+            });
+
+        async function send(body, button) {
+            button.disabled = true;
+            try {
+                await API.post("/api/reg/mentor", body);
+                window.location.href = "captain_info_stud.html";
+            } catch (error) {
+                button.disabled = false;
+                handleApiError(error);
+            }
+        }
+
+        document.getElementById("registrationForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            // Пустая форма — это «без ментора», проверяем поля только если хоть что-то ввели.
+            if (filled() && !validateFields(FIELDS)) return;
+            clearErrors();
+            send({
+                full_name: document.getElementById("full_name").value,
+                post: document.getElementById("post").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+            }, event.target.querySelector('button[type="submit"]'));
+        });
+
+        document.getElementById("skip-button").addEventListener("click", (event) => {
+            clearErrors();
+            send({ skip: true }, event.target);
+        });
+    </script>
+</body>
+
+</html>

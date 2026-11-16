@@ -45,11 +45,14 @@
 
         let hasExistingPhoto = false;
         let selectedFile = null;
+        // Шаг общий для обоих потоков: итоговая проверка у каждого своя.
+        let track = "school";
 
         API.get("/api/reg/data")
             .then((data) => {
                 if (!requireEditable(data)) return;
                 const team = data.team || {};
+                track = team.track || "school";
                 if (team.has_photo) {
                     hasExistingPhoto = true;
                     API.photoUrl("/api/reg/photo").then((url) => {
@@ -98,7 +101,7 @@
                     formData.append("file", selectedFile);
                     await API.upload("/api/reg/photo", formData);
                 }
-                window.location.href = "final_check.html";
+                window.location.href = track === "student" ? "final_check_stud.html" : "final_check.html";
             } catch (error) {
                 submitButton.disabled = false;
                 photoError.textContent = error.message;

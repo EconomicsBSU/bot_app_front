@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="../static/js/tg-params.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/checkbox.css">
+
+    <title>Общие сведения</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" novalidate>
+            <h2>Общие сведения</h2>
+
+            <div class="form-group">
+                <input type="text" id="team_name" name="team_name" placeholder="Введите название команды...">
+                <span id="team_nameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="univ" name="univ" placeholder="Введите название вуза...">
+                <span id="univError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="city" name="city" placeholder="Введите город...">
+                <span id="cityError" class="error-message"></span>
+            </div>
+            <label class="custom-checkbox">
+                <input type="checkbox" id="dormitory" name="dormitory">
+                <span class="checkmark"></span>
+                <span class="checkbox-text">Потребность в общежитии</span>
+            </label>
+
+            <button type="submit">Далее</button>
+        </form>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js?v=3"></script>
+    <script>
+        bindRegForm({
+            formId: "registrationForm",
+            endpoint: "/api/reg/team",
+            next: "mentor_stud.html",
+            fill: (team) => {
+                document.getElementById("team_name").value = team.team_name || "";
+                document.getElementById("univ").value = team.univ || "";
+                document.getElementById("city").value = team.city || "";
+                document.getElementById("dormitory").checked = team.dormitory === "Да";
+            },
+            fields: [
+                { id: "team_name", fns: [Validators.notEmpty] },
+                { id: "univ", fns: [Validators.notEmpty] },
+                { id: "city", fns: [Validators.city] },
+            ],
+        });
+    </script>
+</body>
+
+</html>

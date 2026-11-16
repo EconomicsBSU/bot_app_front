@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="../static/js/tg-params.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/checkbox.css">
+
+    <title>Итоговая проверка</title>
+</head>
+
+<body>
+    <div class="registration-form check">
+        <form id="registrationForm" novalidate>
+
+            <div style="margin-bottom: 30px">
+                <h2>Общие сведения</h2>
+                <div class="form-group">
+                    <input type="text" id="team_name" name="team_name" placeholder="Введите название команды...">
+                    <span id="team_nameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="univ" name="univ" placeholder="Введите название университета...">
+                    <span id="univError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="city" name="city" placeholder="Введите город...">
+                    <span id="cityError" class="error-message"></span>
+                </div>
+                <label class="custom-checkbox">
+                    <input type="checkbox" id="dormitory" name="dormitory">
+                    <span class="checkmark"></span>
+                    <span class="checkbox-text">Потребность в общежитии</span>
+                </label>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация о менторе</h2>
+                <h6 style="text-align: left; color: #9e9ba7; margin-bottom: 10px;">Необязательный шаг — оставьте поля пустыми, если ментора нет.</h6>
+                <div class="form-group">
+                    <input type="text" id="mentor_name" name="mentor_name" placeholder="Введите ФИО ментора...">
+                    <span id="mentor_nameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="mentor_post" name="mentor_post" placeholder="Введите должность ментора...">
+                    <span id="mentor_postError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="mentor_email" name="mentor_email" placeholder="Введите e-mail ментора...">
+                    <span id="mentor_emailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="mentor_phone" name="mentor_phone" placeholder="Введите телефон ментора...">
+                    <span id="mentor_phoneError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация о капитане</h2>
+                <div class="form-group">
+                    <input type="text" id="captain_name" name="captain_name" placeholder="Введите ФИО капитана...">
+                    <span id="captain_nameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="captain_spec" name="captain_spec" placeholder="Введите курс и специальность...">
+                    <span id="captain_specError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="captain_faculty" name="captain_faculty" placeholder="Введите факультет...">
+                    <span id="captain_facultyError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="captain_email" name="captain_email" placeholder="Введите e-mail капитана...">
+                    <span id="captain_emailError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="captain_phone" name="captain_phone" placeholder="Введите телефон капитана...">
+                    <span id="captain_phoneError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация об участнике 1</h2>
+                <div class="form-group">
+                    <input type="text" id="participant_1_name" name="participant_1_name" placeholder="Введите ФИО участника 1...">
+                    <span id="participant_1_nameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="participant_1_spec" name="participant_1_spec" placeholder="Введите курс и специальность...">
+                    <span id="participant_1_specError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="participant_1_faculty" name="participant_1_faculty" placeholder="Введите факультет...">
+                    <span id="participant_1_facultyError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="participant_1_email" name="participant_1_email" placeholder="Введите e-mail участника 1...">
+                    <span id="participant_1_emailError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация об участнике 2</h2>
+                <div class="form-group">
+                    <input type="text" id="participant_2_name" name="participant_2_name" placeholder="Введите ФИО участника 2...">
+                    <span id="participant_2_nameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="participant_2_spec" name="participant_2_spec" placeholder="Введите курс и специальность...">
+                    <span id="participant_2_specError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="participant_2_faculty" name="participant_2_faculty" placeholder="Введите факультет...">
+                    <span id="participant_2_facultyError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="participant_2_email" name="participant_2_email" placeholder="Введите e-mail участника 2...">
+                    <span id="participant_2_emailError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Информация об участнике 3</h2>
+                <h6 style="text-align: left; color: #9e9ba7; margin-bottom: 10px;">Необязательный участник — оставьте поля пустыми, если его нет.</h6>
+                <div class="form-group">
+                    <input type="text" id="participant_3_name" name="participant_3_name" placeholder="Введите ФИО участника 3...">
+                    <span id="participant_3_nameError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="participant_3_spec" name="participant_3_spec" placeholder="Введите курс и специальность...">
+                    <span id="participant_3_specError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="participant_3_faculty" name="participant_3_faculty" placeholder="Введите факультет...">
+                    <span id="participant_3_facultyError" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="participant_3_email" name="participant_3_email" placeholder="Введите e-mail участника 3...">
+                    <span id="participant_3_emailError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px">
+                <h2>Фото команды</h2>
+
+                <div class="upload" id="upload">
+                    <img src="../static/image/image 1.png" class="icon_photo" alt="Прикрепить">
+                    <p id="uploadText">Нажмите, чтобы заменить фото</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <div id="previewContainer" style="display: none; margin-top: 10px;">
+                        <img id="imagePreview" src="" alt="Фото команды" style="max-width: 100px; max-height: 100px; display: block;">
+                    </div>
+                </div>
+                <div id="photoError" class="error-message"></div>
+            </div>
+
+            <button type="submit" id="submit">Отправить</button>
+        </form>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js?v=4"></script>
+    <script>
+        const form = document.getElementById("registrationForm");
+        const upload = document.getElementById("upload");
+        const fileInput = document.getElementById("fileInput");
+        const uploadText = document.getElementById("uploadText");
+        const previewContainer = document.getElementById("previewContainer");
+        const imagePreview = document.getElementById("imagePreview");
+        const photoError = document.getElementById("photoError");
+        const submitButton = document.getElementById("submit");
+
+        let hasExistingPhoto = false;
+        let selectedFile = null;
+        // Заявка уже подана — значит страница работает как редактор, а не как шаг регистрации.
+        let editMode = false;
+
+        API.get("/api/reg/data")
+            .then((data) => {
+                if (!requireEditable(data)) return;
+                const team = data.team || {};
+                editMode = !!team.finished;
+                if (editMode) {
+                    submitButton.textContent = "Сохранить изменения";
+                }
+                fill(team);
+
+                if (team.has_photo) {
+                    hasExistingPhoto = true;
+                    API.photoUrl("/api/reg/photo").then((url) => {
+                        if (!url) return;
+                        imagePreview.src = url;
+                        previewContainer.style.display = "block";
+                        upload.classList.add("active", "expanded");
+                        uploadText.innerHTML = "Файл выбран: <b>" + escHtml(team.photo_filename) + "</b>";
+                    });
+                } else {
+                    uploadText.textContent = "Выберите фото вашей команды";
+                }
+            })
+            .catch((error) => {
+                if (error.status === 409) {
+                    window.location.replace("privacy_policy.html");
+                }
+            });
+
+        function set(id, value) {
+            document.getElementById(id).value = value === null || value === undefined ? "" : value;
+        }
+
+        function fill(team) {
+            set("team_name", team.team_name);
+            set("univ", team.univ);
+            set("city", team.city);
+            document.getElementById("dormitory").checked = team.dormitory === "Да";
+
+            const mentor = team.mentor || {};
+            set("mentor_name", mentor.full_name);
+            set("mentor_post", mentor.post);
+            set("mentor_email", mentor.email);
+            set("mentor_phone", mentor.phone_number);
+
+            const captain = team.captain || {};
+            set("captain_name", captain.full_name);
+            set("captain_spec", captain.spec);
+            set("captain_faculty", captain.faculty);
+            set("captain_email", captain.email);
+            set("captain_phone", captain.phone_number);
+
+            const participants = team.participants || [];
+            for (let i = 1; i <= 3; i++) {
+                const participant = participants[i - 1] || {};
+                set("participant_" + i + "_name", participant.full_name);
+                set("participant_" + i + "_spec", participant.spec);
+                set("participant_" + i + "_faculty", participant.faculty);
+                set("participant_" + i + "_email", participant.email);
+            }
+        }
+
+        upload.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            photoError.textContent = "";
+            compressImageFile(file, (compressed) => {
+                selectedFile = compressed;
+                imagePreview.src = URL.createObjectURL(compressed);
+                previewContainer.style.display = "block";
+                upload.classList.add("active", "expanded");
+                uploadText.innerHTML = "Файл выбран: <b>" + escHtml(compressed.name) + "</b>";
+            });
+        });
+
+        const MENTOR_FIELDS = ["name", "post", "email", "phone"];
+        const STUDY_FIELDS = ["spec", "faculty"];
+
+        function personFields(prefix, study, contact) {
+            const fields = [{ id: prefix + "_name", fns: [Validators.notEmpty] }];
+            study.forEach((name) => fields.push({ id: prefix + "_" + name, fns: [Validators.text] }));
+            contact.forEach((name) => {
+                const fn = name === "email" ? Validators.email : Validators.phone;
+                fields.push({ id: prefix + "_" + name, fns: [fn] });
+            });
+            return fields;
+        }
+
+        function filled(prefix, names) {
+            return names.some((field) => {
+                return document.getElementById(prefix + "_" + field).value.trim().length > 0;
+            });
+        }
+
+        function validateAllFields() {
+            const fields = [
+                { id: "team_name", fns: [Validators.notEmpty] },
+                { id: "univ", fns: [Validators.notEmpty] },
+                { id: "city", fns: [Validators.city] },
+            ];
+            // Ментор у студентов необязателен целиком: проверяем, только если хоть что-то заполнено.
+            if (filled("mentor", MENTOR_FIELDS)) {
+                fields.push(
+                    { id: "mentor_name", fns: [Validators.notEmpty] },
+                    { id: "mentor_post", fns: [Validators.notEmpty] },
+                    { id: "mentor_email", fns: [Validators.email] },
+                    { id: "mentor_phone", fns: [Validators.phone] },
+                );
+            }
+            fields.push(...personFields("captain", STUDY_FIELDS, ["email", "phone"]));
+            fields.push(...personFields("participant_1", STUDY_FIELDS, ["email"]));
+            fields.push(...personFields("participant_2", STUDY_FIELDS, ["email"]));
+            if (filled("participant_3", ["name", "spec", "faculty", "email"])) {
+                fields.push(...personFields("participant_3", STUDY_FIELDS, ["email"]));
+            }
+            return validateFields(fields);
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            photoError.textContent = "";
+            if (!validateAllFields()) return;
+            if (!selectedFile && !hasExistingPhoto) {
+                photoError.textContent = "Загрузите фото команды";
+                return;
+            }
+
+            const formData = new FormData(form);
+            if (selectedFile) {
+                formData.append("file", selectedFile);
+            }
+
+            submitButton.disabled = true;
+            try {
+                await API.upload("/api/reg/finish", formData);
+                window.location.href = editMode ? "team_info.html" : "registration_end.html";
+            } catch (error) {
+                submitButton.disabled = false;
+                handleApiError(error);
+            }
+        });
+    </script>
+</body>
+
+</html>

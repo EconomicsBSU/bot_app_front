@@ -21,6 +21,10 @@
 
         <div class="stat-grid" id="stats"></div>
         <div class="card">
+            <div class="section-title">Потоки</div>
+            <div id="tracks"></div>
+        </div>
+        <div class="card">
             <div class="section-title">Города</div>
             <div id="cities"></div>
         </div>
@@ -51,6 +55,15 @@
                     ? cities.map((item) =>
                         '<div class="city-row"><span>' + escHtml(item.city) +
                         '</span><span>' + escHtml(item.count) + "</span></div>").join("")
+                    : '<div class="empty-note">Пока нет данных</div>';
+
+                // Приём заявок и заявки считаются по каждому потоку отдельно.
+                const tracks = stats.by_track || [];
+                document.getElementById("tracks").innerHTML = tracks.length
+                    ? tracks.map((item) =>
+                        '<div class="city-row"><span>' + escHtml(item.title) +
+                        '</span><span>' + escHtml(item.teams) + " команд · завершили " +
+                        escHtml(item.finished) + "</span></div>").join("")
                     : '<div class="empty-note">Пока нет данных</div>';
             })
             .catch((error) => {

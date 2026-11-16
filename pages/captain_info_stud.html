@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="../static/js/tg-params.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../static/font/stylesheet.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+
+    <title>Информация о капитане команды</title>
+</head>
+
+<body>
+    <div class="registration-form">
+        <form id="registrationForm" novalidate>
+            <h2>Информация о капитане команды</h2>
+
+            <div class="form-group">
+                <input type="text" id="full_name" name="full_name" placeholder="Введите ФИО капитана...">
+                <span id="full_nameError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="spec" name="spec" placeholder="Введите курс и специальность...">
+                <span id="specError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="faculty" name="faculty" placeholder="Введите факультет...">
+                <span id="facultyError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Введите e-mail капитана...">
+                <span id="emailError" class="error-message"></span>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" placeholder="Введите телефон капитана...">
+                <span id="phoneError" class="error-message"></span>
+            </div>
+
+            <button type="submit">Далее</button>
+        </form>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/api.js?v=4"></script>
+    <script>
+        bindRegForm({
+            formId: "registrationForm",
+            endpoint: "/api/reg/captain",
+            next: "participant_stud.html?n=1",
+            fill: (team) => {
+                const captain = team.captain || {};
+                document.getElementById("full_name").value = captain.full_name || "";
+                document.getElementById("spec").value = captain.spec || "";
+                document.getElementById("faculty").value = captain.faculty || "";
+                document.getElementById("email").value = captain.email || "";
+                document.getElementById("phone").value = captain.phone_number || "";
+            },
+            fields: [
+                { id: "full_name", fns: [Validators.notEmpty] },
+                { id: "spec", fns: [Validators.text] },
+                { id: "faculty", fns: [Validators.text] },
+                { id: "email", fns: [Validators.email] },
+                { id: "phone", fns: [Validators.phone] },
+            ],
+        });
+    </script>
+</body>
+
+</html>

@@ -67,7 +67,9 @@
 
         function card(item) {
             const date = stamp(item.created_at);
-            const who = [item.team_name, item.username ? "@" + item.username : String(item.tg_id)]
+            // Поток спрашивающего: с двумя потоками в одной ленте видно, откуда вопрос.
+            const track = item.track === "student" ? "Олимпиада" : "Конкурс";
+            const who = [track, item.team_name, item.username ? "@" + item.username : String(item.tg_id)]
                 .filter(Boolean).join(" · ");
             let answer;
             if (item.answer) {

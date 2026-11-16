@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../static/font/stylesheet.css">
     <link rel="stylesheet" href="../static/css/style.css">
     <link rel="stylesheet" href="../static/css/admin.css">
+    <link rel="stylesheet" href="../static/css/checkbox.css">
 
     <title>Карточка команды</title>
 
@@ -56,7 +57,7 @@
     </div>
 
     <script src="../static/js/config.js"></script>
-    <script src="../static/js/api.js?v=3"></script>
+    <script src="../static/js/api.js?v=4"></script>
     <script>
         const teamId = new URLSearchParams(window.location.search).get("id") || "";
         const content = document.getElementById("content");
@@ -74,8 +75,15 @@
             let rows = extra || "";
             rows += row("ФИО", member.full_name);
             if (member.post) rows += row("Должность", member.post);
-            if (member.grade !== "") rows += row("Класс", member.grade);
-            rows += row("E-mail", member.email) + row("Телефон", member.phone_number);
+            if (member.grade !== "" && member.grade !== null && member.grade !== undefined) {
+                rows += row("Класс", member.grade);
+            }
+            // Студенческий поток: вместо класса — курс/специальность и факультет.
+            if (member.spec) rows += row("Курс и специальность", member.spec);
+            if (member.faculty) rows += row("Факультет", member.faculty);
+            rows += row("E-mail", member.email);
+            // У студентов телефон есть только у капитана и ментора.
+            if (member.phone_number) rows += row("Телефон", member.phone_number);
             return '<div class="card"><div class="section-title">' + escHtml(title) + "</div>" + rows + "</div>";
         }
 
@@ -116,32 +124,54 @@
                 "</div>";
         }
 
+        // Набор полей зависит от потока: у школьников — класс и телефон у каждого,
+        // у студентов — курс/специальность и факультет, а телефон только у капитана и ментора.
+        const SCHOOL_STUDY = [["grade", "Класс", "number"]];
+        const STUDENT_STUDY = [["spec", "Курс и специальность", "text"], ["faculty", "Факультет", "text"]];
+
         function personFields(prefix, title, who, person, spec) {
             let html = '<div class="form-subtitle">' + escHtml(title) + "</div>";
             html += field("text", prefix + "_name", "ФИО " + who, person.full_name);
             if (spec.post) html += field("text", prefix + "_post", "Должность " + who, person.post);
-            if (spec.grade) html += field("number", prefix + "_grade", "Класс " + who, person.grade);
+            // Учебных полей у ментора нет ни в одном потоке — ему приходит пустой список.
+            spec.study.forEach(([name, label, type]) => {
+                html += field(type, prefix + "_" + name, label + " " + who, person[name]);
+            });
             html += field("email", prefix + "_email", "E-mail " + who, person.email);
-            html += field("tel", prefix + "_phone", "Телефон " + who, person.phone_number);
+            if (spec.phone) html += field("tel", prefix + "_phone", "Телефон " + who, person.phone_number);
             return html;
         }
 
+        function dormitoryField(value) {
+            return '<label class="custom-checkbox">' +
+                '<input type="checkbox" id="dormitory" name="dormitory"' + (value === "Да" ? " checked" : "") + ">" +
+                '<span class="checkmark"></span>' +
+                '<span class="checkbox-text">Потребность в общежитии</span>' +
+                "</label>";
+        }
+
         function editCard(team) {
+            const student = team.track === "student";
+            const study = student ? STUDENT_STUDY : SCHOOL_STUDY;
             let html = '<div class="card"><div class="section-title">Данные заявки</div>' +
                 '<button type="button" id="toggleEdit" class="edit-toggle">Редактировать данные</button>' +
                 '<form id="editForm" novalidate hidden>' +
                 '<div class="form-subtitle">Команда</div>' +
                 field("text", "team_name", "Название команды", team.team_name) +
-                field("text", "school", "Школа", team.school) +
-                field("text", "city", "Город", team.city);
+                field("text", student ? "univ" : "school", student ? "Вуз" : "Школа", student ? team.univ : team.school) +
+                field("text", "city", "Город", team.city) +
+                (student ? dormitoryField(team.dormitory) : "");
 
-            html += personFields("mentor", "Ментор", "ментора", team.mentor || {}, { post: true });
-            html += personFields("captain", "Капитан", "капитана", team.captain || {}, { grade: true });
+            html += personFields("mentor", "Ментор", "ментора", team.mentor || {}, { post: true, phone: true, study: [] });
+            if (student) {
+                html += '<div class="hint">Ментор у студентов необязательный — очистите его поля, чтобы убрать из состава.</div>';
+            }
+            html += personFields("captain", "Капитан", "капитана", team.captain || {}, { phone: true, study: study });
 
             const participants = team.participants || [];
             for (let i = 1; i <= 3; i++) {
-                html += personFields("participant_" + i, "Участник " + i,
-                    "участника " + i, participants[i - 1] || {}, { grade: true });
+                html += personFields("participant_" + i, "Участник " + i, "участника " + i,
+                    participants[i - 1] || {}, { phone: !student, study: study });
             }
             html += '<div class="hint">Третий участник необязательный — очистите его поля, чтобы убрать из состава.</div>';
 
@@ -159,43 +189,51 @@
             return data;
         }
 
-        function validateEditForm() {
+        function validateEditForm(student) {
+            const study = student ? STUDENT_STUDY : SCHOOL_STUDY;
+            const filled = (prefix, names) => names.some((name) => {
+                const input = document.getElementById(prefix + "_" + name);
+                return input && input.value.trim().length > 0;
+            });
+
             const fields = [
                 { id: "team_name", fns: [Validators.notEmpty] },
-                { id: "school", fns: [Validators.notEmpty] },
+                { id: student ? "univ" : "school", fns: [Validators.notEmpty] },
                 { id: "city", fns: [Validators.city] },
-                { id: "mentor_name", fns: [Validators.notEmpty] },
-                { id: "mentor_post", fns: [Validators.notEmpty] },
-                { id: "mentor_email", fns: [Validators.email] },
-                { id: "mentor_phone", fns: [Validators.phone] },
-                { id: "captain_name", fns: [Validators.notEmpty] },
-                { id: "captain_grade", fns: [Validators.grade] },
-                { id: "captain_email", fns: [Validators.email] },
-                { id: "captain_phone", fns: [Validators.phone] },
-                { id: "participant_1_name", fns: [Validators.notEmpty] },
-                { id: "participant_1_grade", fns: [Validators.grade] },
-                { id: "participant_1_email", fns: [Validators.email] },
-                { id: "participant_1_phone", fns: [Validators.phone] },
-                { id: "participant_2_name", fns: [Validators.notEmpty] },
-                { id: "participant_2_grade", fns: [Validators.grade] },
-                { id: "participant_2_email", fns: [Validators.email] },
-                { id: "participant_2_phone", fns: [Validators.phone] },
             ];
-            const thirdFilled = ["name", "grade", "email", "phone"].some((suffix) => {
-                return document.getElementById("participant_3_" + suffix).value.trim().length > 0;
-            });
-            if (thirdFilled) {
+
+            function personRules(prefix, phone) {
+                const rules = [{ id: prefix + "_name", fns: [Validators.notEmpty] }];
+                study.forEach(([name]) => {
+                    rules.push({
+                        id: prefix + "_" + name,
+                        fns: [name === "grade" ? Validators.grade : Validators.text],
+                    });
+                });
+                rules.push({ id: prefix + "_email", fns: [Validators.email] });
+                if (phone) rules.push({ id: prefix + "_phone", fns: [Validators.phone] });
+                return rules;
+            }
+
+            // Ментор у студентов необязателен целиком: проверяем, только если хоть что-то заполнено.
+            if (!student || filled("mentor", ["name", "post", "email", "phone"])) {
                 fields.push(
-                    { id: "participant_3_name", fns: [Validators.notEmpty] },
-                    { id: "participant_3_grade", fns: [Validators.grade] },
-                    { id: "participant_3_email", fns: [Validators.email] },
-                    { id: "participant_3_phone", fns: [Validators.phone] },
+                    { id: "mentor_name", fns: [Validators.notEmpty] },
+                    { id: "mentor_post", fns: [Validators.notEmpty] },
+                    { id: "mentor_email", fns: [Validators.email] },
+                    { id: "mentor_phone", fns: [Validators.phone] },
                 );
+            }
+            fields.push(...personRules("captain", true));
+            fields.push(...personRules("participant_1", !student));
+            fields.push(...personRules("participant_2", !student));
+            if (filled("participant_3", ["name", "email"].concat(study.map(([name]) => name)))) {
+                fields.push(...personRules("participant_3", !student));
             }
             return validateFields(fields);
         }
 
-        function bindEditForm() {
+        function bindEditForm(student) {
             const toggle = document.getElementById("toggleEdit");
             const form = document.getElementById("editForm");
             const errorEl = document.getElementById("editError");
@@ -208,7 +246,7 @@
                 event.preventDefault();
                 const button = form.querySelector('button[type="submit"]');
                 errorEl.textContent = "";
-                if (!validateEditForm()) return;
+                if (!validateEditForm(student)) return;
                 button.disabled = true;
                 try {
                     await API.post("/api/admin/teams/" + teamId, editValues(form));
@@ -225,14 +263,19 @@
         }
 
         function renderTeam(team) {
+            const student = team.track === "student";
             const badge = team.finished
                 ? '<span class="badge done">Регистрация завершена</span>'
                 : '<span class="badge progress">В процессе</span>';
 
             let html = '<div class="card"><div class="section-title">' + escHtml(team.team_name || "Без названия") + "</div>" +
                 row("ID", team.team_id) +
+                row("Поток", student
+                    ? "Евразийская студенческая олимпиада по аналитической экономике и прогнозированию"
+                    : "Конкурс «Финансовая и цифровая грамотность поколения Z»") +
                 row("Город", team.city) +
-                row("Школа", team.school) +
+                row(student ? "Вуз" : "Школа", student ? team.univ : team.school) +
+                (student ? row("Потребность в общежитии", team.dormitory || "Нет") : "") +
                 row("Дата регистрации", team.reg_date || "—") +
                 badge + "</div>";
 
@@ -254,18 +297,21 @@
 
             html += editCard(team);
 
-            html += '<div class="card"><div class="section-title">Оценки</div>' +
-                '<form id="scoresForm" novalidate>' +
-                '<div class="form-group"><input type="number" step="0.01" id="av_test_score" name="av_test_score" placeholder="Средний балл за тест..." value="' + escHtml(scoreValue(team.scores.av_test_score)) + '"></div>' +
-                '<div class="form-group"><input type="number" step="0.01" id="essay_score" name="essay_score" placeholder="Балл за эссе..." value="' + escHtml(scoreValue(team.scores.essay_score)) + '"></div>' +
-                row("Итоговый балл", scoreValue(team.scores.total_score) || "—") +
-                '<span id="scoresError" class="error-message"></span>' +
-                '<button type="submit">Сохранить оценки</button>' +
-                "</form></div>";
+            // Баллы есть только у школьного конкурса: студенческая олимпиада оценивается иначе.
+            if (!student) {
+                html += '<div class="card"><div class="section-title">Оценки</div>' +
+                    '<form id="scoresForm" novalidate>' +
+                    '<div class="form-group"><input type="number" step="0.01" id="av_test_score" name="av_test_score" placeholder="Средний балл за тест..." value="' + escHtml(scoreValue(team.scores.av_test_score)) + '"></div>' +
+                    '<div class="form-group"><input type="number" step="0.01" id="essay_score" name="essay_score" placeholder="Балл за эссе..." value="' + escHtml(scoreValue(team.scores.essay_score)) + '"></div>' +
+                    row("Итоговый балл", scoreValue(team.scores.total_score) || "—") +
+                    '<span id="scoresError" class="error-message"></span>' +
+                    '<button type="submit">Сохранить оценки</button>' +
+                    "</form></div>";
+            }
 
             content.innerHTML = html;
 
-            bindEditForm();
+            bindEditForm(student);
 
             if (team.has_photo) {
                 API.photoUrl("/api/admin/teams/" + teamId + "/photo").then((url) => {
@@ -274,7 +320,7 @@
                 });
             }
 
-            document.getElementById("scoresForm").addEventListener("submit", async (event) => {
+            document.getElementById("scoresForm")?.addEventListener("submit", async (event) => {
                 event.preventDefault();
                 const button = event.target.querySelector('button[type="submit"]');
                 const errorEl = document.getElementById("scoresError");
